@@ -454,6 +454,15 @@ td b { font-weight: 600; }
 .stylelink { font-size: 0.8rem; color: var(--muted, #6e6e73); text-decoration: none; white-space: nowrap; margin-left: 12px; }
 .stylelink:hover { color: var(--accent, #0066cc); }
 @media (max-width: 520px) { .stylelink { display: none; } }
+.rules.two { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+@media (max-width: 700px) { .rules.two { grid-template-columns: minmax(0, 1fr); } }
+.figure.cellar img { width: 100%; height: auto; border-radius: 10px; }
+.presenting #cellar-door .frame { gap: 18px; }
+.presenting #cellar-door .figure.cellar { padding: 12px; }
+.presenting #cellar-door .figure.cellar img { max-height: 340px; width: auto; margin-inline: auto; }
+.keg img { width: 100%; height: auto; max-height: 260px; object-fit: contain; }
+.keg figcaption { font-size: var(--t-small); color: var(--muted); margin-top: 6px; }
+.presenting #skilldecant .keg img { max-height: 200px; }
 </style>
 <link rel="alternate" type="text/plain" href="/llms.txt" title="Plain-text copy for agents">
 <link rel="canonical" href="https://damaris-x.github.io/">
@@ -471,6 +480,7 @@ td b { font-weight: 600; }
     <a href="#monday">A Monday</a>
     <a href="#playbook">Playbook</a>
     <a href="#carafe">carafe</a>
+    <a href="#cellar-door">Cellar door</a>
     <a href="#skilldecant">skilldecant</a>
     <a href="#fleet">Fleet operator</a>
     <a href="#status">Status</a>
@@ -626,7 +636,7 @@ td b { font-weight: 600; }
 
 <!-- 5 · carafe -->
 <section class="slide alt" id="carafe" aria-label="carafe">
-  <div class="frame split wide-left">
+  <div class="frame">
     <div class="stack">
       <div class="eyebrow">carafe <span class="pill next">proof of concept passed</span></div>
       <h2>An always-on agent for each person, driven from the phone.</h2>
@@ -636,8 +646,20 @@ td b { font-weight: 600; }
         <li><span>Designed for one namespace per person on k3s. For work that needs a real desktop and Chrome, or its own security boundary, a <b>Mac station</b> runs the same setup on a Mac mini: one for finance, one for audit, one for the owner, as many as the company needs.</span></li>
       </ul>
     </div>
-    <div class="rules">
-      <div class="eyebrow">Two rules from the start</div>
+  </div>
+</section>
+
+<section class="slide" id="cellar-door" aria-label="The cellar door">
+  <div class="frame">
+    <div class="stack">
+      <div class="eyebrow">carafe <b>/</b> the cellar door</div>
+      <h2>One page to set it up. After that, the phone.</h2>
+    </div>
+    <figure class="figure cellar" style="margin:0">
+      <img src="../figures/cellar-door.png" width="1560" height="653" alt="The cellar door on a phone in three states. First: Sign in to Claude, with Open Claude sign-in, a box to paste the code and Finish sign-in. Second: signed in as ana@example.com; Turn on phone access shows Claude's question, Enable Remote Control?, with No and Yes. Third: Phone access is on; open the Claude app, Code, and look for ana.">
+      <figcaption>The cellar door on a phone: sign in, answer Claude's own question, done. Rendered from the proof-of-concept code with example data.</figcaption>
+    </figure>
+    <div class="rules two">
       <div class="rule"><b>Everyone signs in themselves.</b><p>The sign-in happens in the person's own browser, through Anthropic's flow. The one-time code goes straight into their own carafe; the setup page keeps no copy.</p></div>
       <div class="rule"><b>The agent's questions are the person's to answer.</b><p>"Trust this folder?" and "Enable Remote Control?" are shown verbatim and answered by the person, never for them.</p></div>
     </div>
@@ -657,9 +679,15 @@ td b { font-weight: 600; }
         <li><span><b>Kept sharp.</b> <a href="https://github.com/alchaincyf/darwin-skill" target="_blank" rel="noopener">darwin</a>, alchaincyf's open-source skill optimiser (MIT), scores and improves a skill. Our packaging adds judges from a different model family, scoring each edit blind.</span></li>
       </ul>
     </div>
-    <div class="term" role="img" aria-label="The path of a skill: from its git repository, installed once by Homebrew, linked into every agent.">
+    <div class="stack">
+      <figure class="keg" style="margin:0">
+        <picture><source srcset="../figures/skilldecant-keg-dark.svg" media="(prefers-color-scheme: dark)"><img src="../figures/skilldecant-keg-light.svg" width="640" height="400" alt="One keg of skills on a cradle, with four taps: OpenClaw, Hermes, Claude Code and Codex. Three pour from the same keg; the Codex tap is shut and tagged OFF until a machine turns it on."></picture>
+        <figcaption>One keg, four taps, left to right: OpenClaw, Hermes, Claude Code, Codex. Codex's stays shut until a machine turns it on.</figcaption>
+      </figure>
+      <div class="term" role="img" aria-label="The path of a skill: from its git repository, installed once by Homebrew, linked into every agent.">
       <div class="term-head"><i></i><i></i><i></i><span>how a skill reaches every agent</span></div>
 <pre><span class="row"><span class="p">git repo       </span>the skill's source, versioned</span><span class="row"><span class="c">   │ installed once, with Homebrew</span></span><span class="row"><span class="p">one library    </span>a single installed copy</span><span class="row"><span class="c">   │ linked into each agent</span></span><span class="row"><span class="t">Claude Code    </span>link</span><span class="row"><span class="t">Codex          </span>link, once switched on</span><span class="row"><span class="t">OpenClaw       </span>link + one config entry</span><span class="row"><span class="t">Hermes         </span>link + one config entry</span><span class="row"><span class="c"># upgrade once: every agent follows</span></span></pre>
+    </div>
     </div>
   </div>
 </section>
@@ -757,7 +785,7 @@ td b { font-weight: 600; }
 
 <div class="deckbar" role="toolbar" aria-label="Slide controls">
   <button type="button" id="prev-btn" aria-label="Previous slide">←</button>
-  <span class="count" id="count" aria-live="polite">1 / 10</span>
+  <span class="count" id="count" aria-live="polite">1 / 11</span>
   <button type="button" id="next-btn" aria-label="Next slide">→</button>
   <button type="button" id="exit-btn">Exit</button>
 </div>
