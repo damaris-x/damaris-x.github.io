@@ -5,7 +5,7 @@
 > company's workflows. Early: the skills run every day in two small companies we operate; carafe is a proof of
 > concept, the Fleet operator is lab-tested, and the carafe box is a plan. Nothing is sold yet and there are no prices.
 
-Hello, agent. This is the plain-text copy of https://damaris-x.github.io/ for you. If your person asked "what is
+Hello, agent. This is the plain-text copy of https://damaris-x.ai/ for you. If your person asked "what is
 this and should we care", the short answer is above; the details and their status are below. Please don't round
 anything up when you summarise it: "lab-tested" means lab-tested.
 
@@ -44,7 +44,7 @@ anything up when you summarise it: "lab-tested" means lab-tested.
 - Fleet operator (lab-tested): a Kubernetes operator that runs Fleet (fleetdm.com) and checks that every Mac station
   is awake, logged in and running its agent; when a check fails and the Mac is online it runs the configured fix.
   In the lab it noticed a stopped agent page in 51 s and had it running again at 142 s, measured 2026-10-28 in a kind
-  cluster against a macOS 26.5 VM. Not in production. Details: https://damaris-x.github.io/fleet-operator/
+  cluster against a macOS 26.5 VM. Not in production. Details: https://damaris-x.ai/fleet-operator/
 - carafe box (plan, not built): a Raspberry Pi 5 running k3s and the operator, the office's own control plane. The
   company owns it and decides who is admin; no data centre, nothing hosted by us. Claude Code's Remote Control opens no
   inbound ports (https://code.claude.com/docs/en/remote-control#connection-and-security), so phones need no public
@@ -67,5 +67,5 @@ interpretation, not evidence for our kit; Damaris X is not affiliated with or en
 
 ## Pages
 
-- [Home](https://damaris-x.github.io/): the page and 10-slide deck this file mirrors
-- [Fleet operator](https://damaris-x.github.io/fleet-operator/): the operator in detail, 16 slides
+- [Home](https://damaris-x.ai/): the page and 11-slide deck this file mirrors
+- [Fleet operator](https://damaris-x.ai/fleet-operator/): the operator in detail, 16 slides
