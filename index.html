@@ -353,6 +353,11 @@ footer.site .frame { gap: 8px; }
 .office .cell { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: grid; gap: 3px; background: var(--bg); }
 .office .cell b { font: 600 0.95rem/1.2 var(--display); }
 .office .cell small { font-size: 0.74rem; color: var(--muted); line-height: 1.35; }
+.macs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.macs .m { border: 1px dashed var(--line-strong); border-radius: 8px; padding: 8px 6px; text-align: center; background: var(--bg); }
+.macs .m b { font: 600 0.8rem/1.2 var(--display); }
+.macs .m.owner { border-style: solid; border-color: var(--fg); }
+@media (max-width: 520px) { .macs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .office .cell.keg { border-color: var(--accent); background: var(--accent-soft); }
 .office .cell.box { border: 2px solid var(--fg); }
 @media (max-width: 520px) { .people { grid-template-columns: repeat(2, minmax(0, 1fr)); } .office-row { grid-template-columns: minmax(0, 1fr); } }
@@ -398,16 +403,17 @@ td b { font-weight: 600; }
       </div>
       <p class="src"><span class="pill ok">in daily use</span> The skills already run every day in two small companies we operate. <span class="pill next">early</span> carafe is a proof of concept, the Fleet operator is lab-tested, and the box is a plan.</p>
     </div>
-    <div class="office" role="img" aria-label="Illustration: a ten-person office with a carafe for each person, two Mac stations, a shared library of skills and the carafe box underneath.">
+    <div class="office" role="img" aria-label="Illustration: a ten-person office with a carafe for each person, a Mac station for each security boundary (front desk, finance, back office, audit, the owner), a shared library of skills and the carafe box underneath.">
       <div class="office-head"><span>a ten-person office</span><span>illustrative</span></div>
       <div class="people">
         <div class="p"><b>ana</b><small>carafe</small></div><div class="p"><b>ben</b><small>carafe</small></div><div class="p"><b>chen</b><small>carafe</small></div><div class="p"><b>dia</b><small>carafe</small></div><div class="p"><b>eli</b><small>carafe</small></div>
         <div class="p"><b>fay</b><small>carafe</small></div><div class="p"><b>gus</b><small>carafe</small></div><div class="p"><b>hana</b><small>carafe</small></div><div class="p"><b>ivo</b><small>carafe</small></div><div class="p"><b>jun</b><small>carafe</small></div>
       </div>
-      <div class="office-row">
-        <div class="cell"><b>Mac station × 2</b><small>a real desktop and Chrome</small></div>
-        <div class="cell keg"><b>skills</b><small>finance · permits · sales · …</small></div>
+      <div class="office-head"><span>a Mac station per security boundary</span></div>
+      <div class="macs">
+        <div class="m"><b>front desk</b></div><div class="m"><b>finance</b></div><div class="m"><b>back office</b></div><div class="m"><b>audit</b></div><div class="m owner"><b>owner</b></div>
       </div>
+      <div class="cell keg"><b>skills</b><small>finance · permits · sales · …</small></div>
       <div class="cell box"><b>carafe box</b><small>the small computer that keeps it all running</small></div>
     </div>
   </div>
@@ -532,7 +538,7 @@ td b { font-weight: 600; }
       <p class="lede">A <b>carafe</b> is one person's own container: Claude Code, their work folder and the company's skills. They set it up once on one web page, the <b>cellar door</b>, then work from the Claude app. No computer of theirs has to stay on.</p>
       <ul class="points">
         <li><span>Built and walked through end to end on 2026-10-26: sign-in, phone access turned on, a session started from claude.ai/code in a browser running in the carafe, and recovery after a restart. A test on a real phone is next.</span></li>
-        <li><span>Designed for one namespace per person on k3s. For work that needs a real desktop and Chrome, a <b>Mac station</b> runs the same setup on a Mac mini.</span></li>
+        <li><span>Designed for one namespace per person on k3s. For work that needs a real desktop and Chrome, or its own security boundary, a <b>Mac station</b> runs the same setup on a Mac mini: one for finance, one for audit, one for the owner, as many as the company needs.</span></li>
       </ul>
     </div>
     <div class="rules">
@@ -581,6 +587,7 @@ td b { font-weight: 600; }
     <div class="kinds">
       <div class="kind"><div><code>no data centre</code><small>the box is yours</small></div><p>The company owns the box and decides who is admin. Support would get in only with its approval, each visit logged.</p></div>
       <div class="kind"><div><code>no open ports</code><small>the office network</small></div><p>Claude Code's Remote Control <a href="https://code.claude.com/docs/en/remote-control#connection-and-security" target="_blank" rel="noopener">opens no inbound ports</a>, so phones need no public address. Fleet stays on the office LAN.</p></div>
+      <div class="kind"><div><code>a Mac per boundary</code><small>as many as needed</small></div><p>Front desk, finance, back office, audit and the owner each get their own Mac, sign-ins and keys, so one role's agent is kept away from another's files and accounts. The operator keeps every one running.</p></div>
       <div class="kind"><div><code>remote hands</code><small>planned</small></div><p>A 5G backup line, a battery and a KVM, added where a real failure calls for them.</p></div>
     </div>
   </div>
