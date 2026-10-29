@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Damaris X</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Agent-ready infrastructure for small companies: an always-on agent for each person, one library of skills for every agent, machines that stay on, and an engineer who sets it up.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: one page that is also a 16:9 deck. Each <section class="slide"> is a page band
+   when scrolling and one slide when presenting. Palette and type follow the repo's figures. */
+:root {
+  --bg: #F5F6F8;
+  --paper: #FFFFFF;
+  --fg: #18202C;
+  --muted: #5A6576;
+  --line: #D6DBE3;
+  --line-strong: #9AA4B3;
+  --zone: #EEF1F5;
+  --accent: #8C2B47;
+  --accent-soft: #F3E3E8;
+  --ok: #2B7A57;
+  --ok-soft: #E0F0E8;
+  --bad: #B4352C;
+  --bad-soft: #F7E2DF;
+  --term-bg: #18202C;
+  --term-fg: #E4E8EE;
+  --term-muted: #8D97A6;
+  --term-ok: #5DC59A;
+  --term-bad: #EE7B70;
+
+  --display: "IBM Plex Sans Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+  --sans: "IBM Plex Sans", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* type scale (page mode: fluid; presenting and print: fixed to a 1280 x 720 stage) */
+  --t-hero: clamp(2.6rem, 6.2vw, 5.4rem);
+  --t-h2: clamp(1.9rem, 3.6vw, 3.1rem);
+  --t-lede: clamp(1.08rem, 1.35vw, 1.3rem);
+  --t-body: 1rem;
+  --t-small: 0.875rem;
+  --t-eyebrow: 0.78rem;
+  --t-code: 0.82rem;
+  --t-stat: clamp(2.2rem, 4vw, 3.4rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151B; --paper: #171C24; --fg: #E4E8EE; --muted: #97A1B0; --line: #2B3340;
+    --line-strong: #56606F; --zone: #1D232D; --accent: #E27B97; --accent-soft: #3A1F29;
+    --ok: #5DC59A; --ok-soft: #173327; --bad: #EE7B70; --bad-soft: #3A1E1B;
+    --term-bg: #0B0E13; --term-fg: #E4E8EE; --term-muted: #7D8796; --term-ok: #5DC59A; --term-bad: #EE7B70;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151B; --paper: #171C24; --fg: #E4E8EE; --muted: #97A1B0; --line: #2B3340;
+  --line-strong: #56606F; --zone: #1D232D; --accent: #E27B97; --accent-soft: #3A1F29;
+  --ok: #5DC59A; --ok-soft: #173327; --bad: #EE7B70; --bad-soft: #3A1E1B;
+  --term-bg: #0B0E13; --term-fg: #E4E8EE; --term-muted: #7D8796; --term-ok: #5DC59A; --term-bad: #EE7B70;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (min-width: 900px) and (min-height: 640px) {
+  html { scroll-snap-type: y proximity; }
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 var(--t-body)/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.04; letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--accent); text-underline-offset: 3px; }
+code, .mono { font-family: var(--mono); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+img { max-width: 100%; height: auto; display: block; }
+
+/* ---------- top bar ---------- */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  display: flex; align-items: center; gap: 16px;
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.mark { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 700; font-size: 1.1rem; color: var(--fg); text-decoration: none; }
+.mark svg { width: 22px; height: 22px; flex: none; }
+.mark span { color: var(--muted); font-weight: 500; }
+.bar nav { display: flex; gap: 18px; margin-left: auto; font-size: var(--t-small); }
+.bar nav a { color: var(--muted); text-decoration: none; }
+.bar nav a:hover { color: var(--fg); }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font: 600 var(--t-small)/1 var(--sans);
+  padding: 10px 14px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--accent); background: var(--accent); color: var(--paper);
+  text-decoration: none; white-space: nowrap;
+}
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn svg { width: 14px; height: 14px; }
+@media (max-width: 760px) { .bar nav { display: none; } .bar .btn { margin-left: auto; } }
+
+/* ---------- slides as page bands ---------- */
+.slide {
+  position: relative;
+  padding-block: clamp(56px, 9vh, 104px);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  border-bottom: 1px solid var(--line);
+  scroll-snap-align: start;
+  scroll-margin-top: 56px;
+}
+@media (min-width: 900px) and (min-height: 640px) {
+  .slide { min-height: calc(100svh - 56px); display: flex; align-items: center; }
+}
+.slide.alt { background: var(--paper); }
+.frame { width: 100%; max-width: 1180px; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(28px, 4vw, 56px); }
+.split { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: center; }
+.split.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.split.wide-left { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+@media (max-width: 900px) { .split, .split.even, .split.wide-left { grid-template-columns: minmax(0, 1fr); } }
+.stack { display: grid; gap: 20px; align-content: start; min-width: 0; }
+
+.eyebrow {
+  font: 600 var(--t-eyebrow)/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accent); display: flex; align-items: center; gap: 10px;
+}
+.eyebrow b { color: var(--muted); font-weight: 500; }
+h2 { font-size: var(--t-h2); }
+.lede { font-size: var(--t-lede); line-height: 1.5; color: var(--fg); max-width: 34em; }
+.muted { color: var(--muted); }
+.small { font-size: var(--t-small); }
+
+.points { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; max-width: 36em; }
+.points li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 12px; }
+.points li::before { content: ""; width: 8px; height: 8px; margin-top: 0.62em; border-radius: 1px; background: var(--accent); transform: rotate(45deg); }
+.points b { font-weight: 600; }
+
+.figure { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-width: 0; }
+.slide.alt .figure { background: var(--bg); }
+.slide:not(.alt) .figure { background: var(--paper); }
+.figure figcaption { font-size: var(--t-small); color: var(--muted); margin-top: 10px; }
+
+.src { font: 400 0.72rem/1.4 var(--mono); color: var(--muted); }
+
+/* ---------- hero ---------- */
+.hero h1 { font-size: var(--t-hero); line-height: 0.98; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--line); max-width: 34rem; }
+.stat { padding: 14px 16px 0 0; }
+.stat + .stat { padding-left: 16px; border-left: 1px solid var(--line); }
+.stat .n { font: 600 var(--t-stat)/1 var(--display); font-variant-numeric: tabular-nums; }
+.stat .n small { font-size: 0.45em; font-weight: 500; color: var(--muted); margin-left: 2px; }
+.stat .l { font-size: var(--t-small); color: var(--muted); margin-top: 6px; line-height: 1.35; }
+
+/* terminal */
+.term {
+  background: var(--term-bg); color: var(--term-fg); border-radius: 10px;
+  font: 400 var(--t-code)/1.55 var(--mono); min-width: 0;
+  box-shadow: 0 1px 0 var(--line), 0 24px 48px -28px rgba(10, 14, 20, 0.55);
+}
+.term-head { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); color: var(--term-muted); font-size: 0.74rem; }
+.term-head i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.18); }
+.term-head span { margin-left: 8px; }
+.term pre { margin: 0; padding: 14px 16px 16px; overflow-x: auto; font: inherit; white-space: pre; }
+.term .p { color: var(--term-muted); }
+.term .t { color: var(--term-ok); }
+.term .f { color: var(--term-bad); }
+.term .c { color: var(--term-muted); font-style: italic; }
+.term .row { display: block; }
+.term .row.hot { background: rgba(238, 123, 112, 0.10); }
+.term .row.fixed { background: rgba(93, 197, 154, 0.10); }
+@media (prefers-reduced-motion: no-preference) {
+  .js .term .row.anim { animation: rowin 0.5s ease both; animation-delay: var(--d, 0s); }
+  @keyframes rowin { from { opacity: 0.15; } to { opacity: 1; } }
+}
+
+/* ---------- tables ---------- */
+.tablewrap { overflow-x: auto; min-width: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+.slide.alt .tablewrap { background: var(--bg); }
+table { border-collapse: collapse; width: 100%; font-size: var(--t-small); }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { font: 600 0.72rem/1.2 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); background: var(--zone); }
+td.k { font-family: var(--mono); font-weight: 600; white-space: nowrap; color: var(--accent); }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pill { display: inline-block; font: 600 0.7rem/1 var(--mono); letter-spacing: 0.04em; padding: 4px 7px; border-radius: 4px; white-space: nowrap; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.next { background: var(--zone); color: var(--muted); border: 1px dashed var(--line-strong); }
+
+/* ---------- code card ---------- */
+.code { background: var(--term-bg); color: var(--term-fg); border-radius: 10px; min-width: 0; overflow: hidden; }
+.code pre { margin: 0; padding: 16px 18px; overflow-x: auto; font: 400 var(--t-code)/1.6 var(--mono); }
+.code .k { color: #E8A0B4; }
+.code .s { color: #A9D8C0; }
+.code .c { color: var(--term-muted); font-style: italic; }
+.code-label { display: flex; justify-content: space-between; padding: 9px 16px; font: 500 0.72rem/1 var(--mono); color: var(--term-muted); border-bottom: 1px solid rgba(255,255,255,0.08); }
+
+/* ---------- three resources ---------- */
+.kinds { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--paper); }
+.kind { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 16px; padding: 14px 16px; border-top: 1px solid var(--line); }
+.kind:first-child { border-top: 0; }
+.kind code { font-weight: 600; color: var(--accent); font-size: 0.9rem; }
+.kind small { display: block; font: 500 0.7rem/1.3 var(--mono); color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 3px; }
+.kind p { font-size: var(--t-small); }
+@media (max-width: 520px) { .kind { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
+
+/* ---------- problem cards ---------- */
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 900px) { .steps { grid-template-columns: minmax(0, 1fr); } }
+.step { border-top: 2px solid var(--fg); padding-top: 14px; display: grid; gap: 8px; align-content: start; }
+.step:last-child { border-top-color: var(--accent); }
+.steps.vertical, .presenting .steps.vertical { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.steps.vertical .step { padding-top: 10px; gap: 4px; }
+.steps.vertical .step h3 { font-size: 1.2rem; }
+#office .kind { padding-block: 11px; }
+.step .n { font: 600 0.75rem/1 var(--mono); color: var(--muted); letter-spacing: 0.08em; }
+.step h3 { font-size: 1.45rem; }
+.step p { font-size: var(--t-small); color: var(--muted); }
+
+/* ---------- rules (carafe) ---------- */
+.rules { display: grid; gap: 12px; }
+.rule { background: var(--accent-soft); border-radius: 8px; padding: 14px 16px; display: grid; gap: 4px; }
+.rule b { font-family: var(--display); font-size: 1.15rem; }
+.rule p { font-size: var(--t-small); }
+
+/* ---------- roadmap ---------- */
+.lanes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 900px) { .lanes { grid-template-columns: minmax(0, 1fr); } }
+.lane { border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; align-content: start; background: var(--paper); }
+.slide.alt .lane { background: var(--bg); }
+.lane h3 { font-size: 1.3rem; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.lane ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; font-size: var(--t-small); }
+.lane li { padding-left: 14px; border-left: 2px solid var(--line); }
+.lane.done li { border-left-color: var(--ok); }
+.lane.now li { border-left-color: var(--accent); }
+
+/* ---------- license ---------- */
+.contact { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.addr { font: 500 1.05rem/1 var(--mono); padding: 11px 14px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--paper); user-select: all; }
+.fine { font-size: 0.78rem; color: var(--muted); max-width: 60em; line-height: 1.55; }
+.licence-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 700px) { .licence-grid { grid-template-columns: minmax(0, 1fr); } }
+.lic { border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 6px; background: var(--bg); align-content: start; }
+.lic h3 { font-size: 1.3rem; }
+.lic p { font-size: var(--t-small); color: var(--muted); }
+.lic.pro { border-color: var(--accent); }
+
+/* ---------- deck controls ---------- */
+.deckbar {
+  position: fixed; z-index: 40; display: none; align-items: center; gap: 10px;
+  right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  font: 500 0.78rem/1 var(--mono); color: var(--muted);
+  background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 6px 6px 6px 12px;
+}
+.deckbar button { font: inherit; color: var(--fg); background: var(--zone); border: 1px solid var(--line); border-radius: 5px; padding: 7px 10px; cursor: pointer; }
+.deckbar .count { font-variant-numeric: tabular-nums; min-width: 4.5em; text-align: center; }
+.deckhint { position: fixed; z-index: 40; display: none; left: calc(16px + env(safe-area-inset-left, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); font: 400 0.72rem/1 var(--mono); color: var(--muted); }
+
+/* ---------- presenting: one 1280 x 720 slide, scaled to fit ---------- */
+.presenting { scroll-snap-type: none; overflow: hidden; }
+.presenting body { overflow: hidden; height: 100%; }
+.presenting .bar, .presenting footer.site { display: none; }
+.presenting .deckbar, .presenting .deckhint { display: flex; }
+.presenting .slide { display: none; }
+.presenting .slide.current {
+  display: flex; align-items: center;
+  position: fixed; left: 50%; top: 50%;
+  width: 1280px; height: 720px; min-height: 0;
+  padding: 56px 64px; border: 0;
+  transform: translate(-50%, -50%) scale(var(--scale, 1));
+  transform-origin: center;
+  background: var(--bg);
+}
+.presenting .slide.alt.current { background: var(--paper); }
+.presenting body { background: var(--zone); }
+.presenting, .print-deck {
+  --t-hero: 76px; --t-h2: 46px; --t-lede: 20px; --t-body: 16px; --t-small: 14.5px; --t-eyebrow: 12px; --t-code: 13px; --t-stat: 50px;
+}
+.presenting .frame { max-width: none; }
+.presenting .split { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); }
+.presenting .split.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.presenting .split.wide-left { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.presenting .steps, .presenting .lanes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.presenting .licence-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.presenting .hide-deck { display: none; }
+
+/* ---------- print: one slide per page ---------- */
+@media print {
+  @page { size: 13.333in 7.5in; margin: 0; }
+  :root { --t-hero: 76px; --t-h2: 46px; --t-lede: 20px; --t-body: 16px; --t-small: 14.5px; --t-eyebrow: 12px; --t-code: 13px; --t-stat: 50px; }
+  html { scroll-snap-type: none; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .bar, .deckbar, .deckhint, footer.site, .hide-deck { display: none !important; }
+  .slide { display: flex !important; align-items: center; position: static; transform: none; width: 1280px; height: 720px; min-height: 0; padding: 56px 64px; border: 0; break-after: page; overflow: hidden; }
+  .frame { max-width: none; }
+  .split { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); }
+  .split.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .split.wide-left { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+  .steps, .lanes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* ---------- the five-layer cake ---------- */
+.cake { display: grid; gap: 6px; min-width: 0; }
+.layer {
+  --i: 0;
+  width: calc(100% - var(--i) * 6%); margin-inline: auto;
+  display: grid; grid-template-columns: 2.2rem minmax(0, 9rem) minmax(0, 1fr); align-items: center; gap: 12px;
+  padding: 12px 16px; border-radius: 6px;
+  background: var(--zone); border: 1px solid var(--line);
+}
+.layer .no { font: 600 0.78rem/1 var(--mono); color: var(--muted); }
+.layer .nm { font: 700 1.15rem/1.1 var(--display); }
+.layer .ours { font-size: var(--t-small); color: var(--muted); min-width: 0; }
+.layer.here { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+.layer.here .no, .layer.here .ours { color: var(--paper); opacity: 0.9; }
+.layer.here .nm::after { content: "we build this"; display: block; font: 600 0.66rem/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85; margin-top: 3px; }
+@media (max-width: 640px) {
+  .layer { width: 100%; grid-template-columns: 1.8rem minmax(0, 1fr); }
+  .layer .ours { grid-column: 2; }
+}
+.layerchip { font: 600 0.7rem/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 5px 9px; text-decoration: none; white-space: nowrap; }
+@media (max-width: 900px) { .layerchip { display: none; } }
+
+footer.site {
+  padding-block: 28px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+footer.site .frame { gap: 8px; }
+
+/* hero illustration: a ten-person office */
+.office { border: 1px solid var(--line); border-radius: 12px; background: var(--paper); padding: 16px; display: grid; gap: 12px; }
+.office-head { display: flex; justify-content: space-between; font: 500 0.72rem/1 var(--mono); color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+.people { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.people .p { border: 1px solid var(--line); border-radius: 8px; padding: 8px 6px; text-align: center; background: var(--bg); }
+.people .p b { display: block; font: 600 0.9rem/1.2 var(--display); }
+.people .p small { font: 500 0.62rem/1 var(--mono); color: var(--accent); letter-spacing: 0.04em; }
+.office-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.office .cell { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: grid; gap: 3px; background: var(--bg); }
+.office .cell b { font: 600 0.95rem/1.2 var(--display); }
+.office .cell small { font-size: 0.74rem; color: var(--muted); line-height: 1.35; }
+.office .cell.keg { border-color: var(--accent); background: var(--accent-soft); }
+.office .cell.box { border: 2px solid var(--fg); }
+@media (max-width: 520px) { .people { grid-template-columns: repeat(2, minmax(0, 1fr)); } .office-row { grid-template-columns: minmax(0, 1fr); } }
+td b { font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <a class="mark" href="#top" aria-label="Damaris X, top">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3.2" fill="var(--accent)"/></svg>
+    Damaris X
+  </a>
+  <nav aria-label="Sections">
+    <a href="#problem">Problem</a>
+    <a href="#engineer">The engineer</a>
+    <a href="#monday">A Monday</a>
+    <a href="#playbook">Playbook</a>
+    <a href="#carafe">carafe</a>
+    <a href="#skilldecant">skilldecant</a>
+    <a href="#fleet">Fleet operator</a>
+    <a href="#status">Status</a>
+    <a href="#license">Licensing</a>
+  </nav>
+  <button class="btn" type="button" id="present-btn" aria-label="Present as slides">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12v8H2zM8 11v3M5 14h6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    Present
+  </button>
+</header>
+
+<main>
+
+<!-- 1 · hero -->
+<section class="slide hero" id="top" aria-label="Damaris X">
+  <div class="frame split wide-left">
+    <div class="stack">
+      <div class="eyebrow">Damaris X <b>/</b> agent-ready infrastructure for small companies</div>
+      <h1>What the best AI teams build for themselves, <em>installed in a ten-person company.</em></h1>
+      <p class="lede">An always-on agent for each person, one library of skills that every agent shares, and the machines kept running, set up by an engineer who then works on your workflows. The most AI-native teams build this with their own platform engineers. A ten-person company has none, so we bring it.</p>
+      <div class="cta hide-deck">
+        <a class="btn" href="#engineer">How it works</a>
+        <a class="btn ghost" href="#status">Where it stands</a>
+      </div>
+      <p class="src"><span class="pill ok">in daily use</span> The skills already run every day in two small companies we operate. <span class="pill next">early</span> carafe is a proof of concept, the Fleet operator is lab-tested, and the box is a plan.</p>
+    </div>
+    <div class="office" role="img" aria-label="Illustration: a ten-person office with a carafe for each person, two Mac stations, a shared library of skills and the carafe box underneath.">
+      <div class="office-head"><span>a ten-person office</span><span>illustrative</span></div>
+      <div class="people">
+        <div class="p"><b>ana</b><small>carafe</small></div><div class="p"><b>ben</b><small>carafe</small></div><div class="p"><b>chen</b><small>carafe</small></div><div class="p"><b>dia</b><small>carafe</small></div><div class="p"><b>eli</b><small>carafe</small></div>
+        <div class="p"><b>fay</b><small>carafe</small></div><div class="p"><b>gus</b><small>carafe</small></div><div class="p"><b>hana</b><small>carafe</small></div><div class="p"><b>ivo</b><small>carafe</small></div><div class="p"><b>jun</b><small>carafe</small></div>
+      </div>
+      <div class="office-row">
+        <div class="cell"><b>Mac station × 2</b><small>a real desktop and Chrome</small></div>
+        <div class="cell keg"><b>skills</b><small>finance · permits · sales · …</small></div>
+      </div>
+      <div class="cell box"><b>carafe box</b><small>the small computer that keeps it all running</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · the problem -->
+<section class="slide alt" id="problem" aria-label="The problem">
+  <div class="frame">
+    <div class="stack">
+      <div class="eyebrow">The problem</div>
+      <h2>Big companies get an engineer on site. Small companies can't pay for one.</h2>
+      <p class="lede">AI labs send engineers to their big customers, to sit with a team until the agents do real work. That is how agents earn their keep. At ten people, nobody pays for that.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="n">THE WORK IS SPECIFIC</span>
+        <h3>Someone has to sit with the team.</h3>
+        <p>Agents pay off on a company's own workflows: its portals, its boards, its books. Each one has to be found, taught and checked.</p>
+      </div>
+      <div class="step">
+        <span class="n">THE MACHINES MUST STAY ON</span>
+        <h3>Agents stop when the laptop closes.</h3>
+        <p>Someone has to keep a machine awake, signed in and patched for every person, and fix it from afar. That is a platform team's job.</p>
+      </div>
+      <div class="step">
+        <span class="n">NOTHING CARRIES OVER</span>
+        <h3>The next company pays again.</h3>
+        <p>Without reusable skills, each engagement repeats the work. What an engineer built for one office stays there, so the cost never comes down.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · the engineer -->
+<section class="slide" id="engineer" aria-label="How an engagement runs">
+  <div class="frame">
+    <div class="stack">
+      <div class="eyebrow">How we answer it</div>
+      <h2>An engineer for days, not a platform team for years.</h2>
+      <p class="lede">The infrastructure is the same in every office, so the engineer's time goes to the work. The work is kept as skills, so the next company of the same kind starts ahead. That is the aim; pilots will measure it in setup hours, support minutes and tasks done.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="n">SETUP</span>
+        <h3>The box goes in.</h3>
+        <p>An engineer, ours or a partner's, plugs the carafe box into the office network, connects the company's sign-in and gives everyone a carafe. Each person signs their agent in themselves.</p>
+      </div>
+      <div class="step">
+        <span class="n">THE ENGAGEMENT</span>
+        <h3>Work, not plumbing.</h3>
+        <p>With the infrastructure already standard, the engineer sits with each team and turns one or two of its workflows into skills.</p>
+      </div>
+      <div class="step">
+        <span class="n">AFTER</span>
+        <h3>Skills travel.</h3>
+        <p>With the company's permission, and checked for client names and secrets, those skills become a pack for that kind of business. A subscription per person covers monitoring, upgrades and new skills.</p>
+      </div>
+    </div>
+    <p class="src">The box, the engagement and the subscription are the plan, not yet sold. No prices yet.</p>
+  </div>
+</section>
+
+<!-- 4 · a Monday -->
+<section class="slide alt" id="monday" aria-label="A Monday with agents">
+  <div class="frame">
+    <div class="stack">
+      <div class="eyebrow">What changes for the team <span class="pill next">illustrative</span></div>
+      <h2>A Monday at a ten-person company, with an agent each.</h2>
+      <p class="lede">Nobody learns a new tool. Each person talks to their own agent from the phone, the agent works in the company's systems with the company's skills, and a person approves anything that leaves the building.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="n">THE BOOKS</span>
+        <h3>"Which invoices are overdue?"</h3>
+        <p>The person who chases payments asks from the train. The agent reads the books, drafts the reminders and posts them for approval. One tap, and it sends them and records what it did.</p>
+      </div>
+      <div class="step">
+        <span class="n">THE PORTALS</span>
+        <h3>"Anything new on our permits?"</h3>
+        <p>The agent checks the government portal in a real browser each morning, updates the job's card on the team's board, and flags what needs a person.</p>
+      </div>
+      <div class="step">
+        <span class="n">A NEW HIRE</span>
+        <h3>"How do we do this here?"</h3>
+        <p>Instead of interrupting a busy colleague, the new person asks the agent, which answers from the same skills everyone else uses. The floor rises for everyone.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · the playbook -->
+<section class="slide alt" id="playbook" aria-label="The playbook">
+  <div class="frame split wide-left">
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>built in-house, as YC describes it</th><th>our counterpart, built or planned</th></tr></thead>
+        <tbody>
+          <tr><td>teams write their own workflows "as English with prompts", and engineers leave the loop</td><td><b>skills</b>, written with the people who do the work</td></tr>
+          <tr><td>a shared tool registry: 20 tools at first, "more than 350 today", every team adds its own</td><td><b>skilldecant</b>: one library, poured into every agent</td></tr>
+          <tr><td>a nightly loop that reads agent conversations and improves the skills</td><td><b>darwin</b> improves a skill on request <span class="pill next">nightly loop next</span></td></tr>
+          <tr><td>a multiplayer harness, which "I don't think has been solved well yet by anybody"</td><td><b>carafe</b>: an agent per person, all sharing the company's skills; a first step</td></tr>
+          <tr><td>agents running on everyone's machines</td><td><b>Fleet operator</b> and <b>carafe box</b> keep them on</td></tr>
+          <tr><td>a platform team that builds and runs all of it</td><td><b>an engineer</b> for a short engagement</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stack">
+      <div class="eyebrow">The playbook</div>
+      <h2>The playbook we work from.</h2>
+      <p class="lede">Y Combinator runs its agents on its own software, one database and a tool registry its teams keep adding to. We built the same habits in our own two companies. Each piece has a counterpart in our kit; some are built, some are still planned.</p>
+      <p class="src">Left column from Pete Koomen and YC's partners, <a href="https://youtu.be/B246K_G7mHU" target="_blank" rel="noopener">"Inside YC's AI Playbook"</a>, Y Combinator, 2026-05-27. The mapping is our interpretation, not evidence for our kit. Damaris X is not affiliated with or endorsed by Y Combinator.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · carafe -->
+<section class="slide" id="carafe" aria-label="carafe">
+  <div class="frame split wide-left">
+    <div class="stack">
+      <div class="eyebrow">carafe <span class="pill next">proof of concept passed</span></div>
+      <h2>An always-on agent for each person, driven from the phone.</h2>
+      <p class="lede">A <b>carafe</b> is one person's own container: Claude Code, their work folder and the company's skills. They set it up once on one web page, the <b>cellar door</b>, then work from the Claude app. No computer of theirs has to stay on.</p>
+      <ul class="points">
+        <li><span>Built and walked through end to end on 2026-10-26: sign-in, phone access turned on, a session started from claude.ai/code in a browser running in the carafe, and recovery after a restart. A test on a real phone is next.</span></li>
+        <li><span>Designed for one namespace per person on k3s. For work that needs a real desktop and Chrome, a <b>Mac station</b> runs the same setup on a Mac mini.</span></li>
+      </ul>
+    </div>
+    <div class="rules">
+      <div class="eyebrow">Two rules from the start</div>
+      <div class="rule"><b>Everyone signs in themselves.</b><p>The sign-in happens in the person's own browser, through Anthropic's flow. The one-time code goes straight into their own carafe; the setup page keeps no copy.</p></div>
+      <div class="rule"><b>The agent's questions are the person's to answer.</b><p>"Trust this folder?" and "Enable Remote Control?" are shown verbatim and answered by the person, never for them.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · skilldecant -->
+<section class="slide alt" id="skilldecant" aria-label="skilldecant">
+  <div class="frame split">
+    <div class="stack">
+      <div class="eyebrow">skilldecant <span class="pill ok">v0.10.0, in daily use</span></div>
+      <h2>One library of skills, shared by every agent.</h2>
+      <p class="lede">A skill is a <code>SKILL.md</code> and its scripts: a workflow written down so an agent can do it. skilldecant installs a company's skills once and links them into Claude Code, Codex, OpenClaw and Hermes. Release a new version and upgrade once; every agent on the machine reads it.</p>
+      <ul class="points">
+        <li><span><b>One copy, no drift.</b> By default agents read the installed library through links, so there is nothing to copy and nothing to fall behind.</span></li>
+        <li><span><b>Checked before it travels.</b> A shared collection is linted for client names, secrets and personal paths before it leaves a company.</span></li>
+        <li><span><b>Kept sharp.</b> <a href="https://github.com/alchaincyf/darwin-skill" target="_blank" rel="noopener">darwin</a>, alchaincyf's open-source skill optimiser (MIT), scores and improves a skill. Our packaging adds judges from a different model family, scoring each edit blind.</span></li>
+      </ul>
+    </div>
+    <div class="term" role="img" aria-label="The path of a skill: from its git repository, installed once by Homebrew, linked into every agent.">
+      <div class="term-head"><i></i><i></i><i></i><span>how a skill reaches every agent</span></div>
+<pre><span class="row"><span class="p">git repo       </span>the skill's source, versioned</span><span class="row"><span class="c">   │ installed once, with Homebrew</span></span><span class="row"><span class="p">one library    </span>a single installed copy</span><span class="row"><span class="c">   │ linked into each agent</span></span><span class="row"><span class="t">Claude Code    </span>link</span><span class="row"><span class="t">Codex          </span>link, once switched on</span><span class="row"><span class="t">OpenClaw       </span>link + one config entry</span><span class="row"><span class="t">Hermes         </span>link + one config entry</span><span class="row"><span class="c"># upgrade once: every agent follows</span></span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · machines that stay on -->
+<section class="slide" id="fleet" aria-label="Fleet operator and the carafe box">
+  <div class="frame split even">
+    <div class="stack">
+      <div class="eyebrow">Fleet operator <span class="pill next">lab-tested</span> <b>+</b> carafe box <span class="pill next">plan</span></div>
+      <h2>The machines stay on, and a failed check gets its fix.</h2>
+      <p class="lede">The Fleet operator runs <a href="https://fleetdm.com" target="_blank" rel="noopener">Fleet</a>, the open-source device manager, and checks that every Mac station is awake, logged in and running its agent. When a check fails and the Mac is online, it runs the configured fix; signing in again stays with the person. The carafe box puts it on a Raspberry Pi 5 in the office, as the company's own control plane.</p>
+      <div class="stats" aria-label="Measured in the lab">
+        <div class="stat"><div class="n">51<small>s</small></div><div class="l">to notice a stopped agent, in the lab</div></div>
+        <div class="stat"><div class="n">142<small>s</small></div><div class="l">until it ran again, in the lab</div></div>
+        <div class="stat"><div class="n">0</div><div class="l">people touching the Mac</div></div>
+      </div>
+      <p class="src">Measured 2026-10-28 in a kind cluster against a macOS 26.5 VM. Not yet in production.</p>
+      <div class="cta"><a class="btn" href="fleet-operator/">The full Fleet operator deck</a></div>
+    </div>
+    <div class="kinds">
+      <div class="kind"><div><code>no data centre</code><small>the box is yours</small></div><p>The company owns the box and decides who is admin. Support would get in only with its approval, each visit logged.</p></div>
+      <div class="kind"><div><code>no open ports</code><small>the office network</small></div><p>Claude Code's Remote Control <a href="https://code.claude.com/docs/en/remote-control#connection-and-security" target="_blank" rel="noopener">opens no inbound ports</a>, so phones need no public address. Fleet stays on the office LAN.</p></div>
+      <div class="kind"><div><code>remote hands</code><small>planned</small></div><p>A 5G backup line, a battery and a KVM, added where a real failure calls for them.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 · status -->
+<section class="slide alt" id="status" aria-label="Where each piece stands">
+  <div class="frame">
+    <div class="stack">
+      <div class="eyebrow">Status</div>
+      <h2>Where each piece stands, without rounding up.</h2>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>piece</th><th>what it does</th><th>status</th></tr></thead>
+        <tbody>
+          <tr><td><b>skills</b></td><td>workflows written so an agent can run them: finance, permits, sales, boards, mail</td><td><span class="pill ok">in daily use</span> in two small companies we operate</td></tr>
+          <tr><td><b>skilldecant</b></td><td>installs skills once and links them into every agent</td><td><span class="pill ok">v0.10.0</span> on our own machines</td></tr>
+          <tr><td><b>carafe</b></td><td>an always-on agent per person, from the phone</td><td><span class="pill next">proof of concept</span> passed 2026-10-26; HTTPS, company sign-in and provisioning next</td></tr>
+          <tr><td><b>Fleet operator</b></td><td>keeps Mac stations awake, signed in and running</td><td><span class="pill next">lab-tested</span> six checks, two companies kept apart; MDM next</td></tr>
+          <tr><td><b>carafe box</b></td><td>the office's own control plane on a Raspberry Pi 5</td><td><span class="pill next">plan</span> layout drawn, not built</td></tr>
+          <tr><td><b>the engagement</b></td><td>an engineer for setup and workflows; skills packs by industry</td><td><span class="pill next">plan</span> our own two companies first</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · licensing -->
+<section class="slide" id="license" aria-label="Licensing and contact">
+  <div class="frame split even">
+    <div class="stack">
+      <div class="eyebrow">Licensing and contact</div>
+      <h2>Free for noncommercial use. Licensed for companies.</h2>
+      <p class="lede">For small companies that want agents at work without a platform team, and for the engineers and IT partners who would set them up.</p>
+      <div class="contact">
+        <span class="addr" id="addr">ccheng@ccheng.us</span>
+        <button class="btn ghost" type="button" id="copy-btn">Copy address</button>
+        <a class="btn hide-deck" href="mailto:ccheng@ccheng.us?subject=Damaris%20X">Write to us</a>
+      </div>
+      <p class="small muted">Write for a commercial license, a pilot, or to become a setup partner.</p>
+    </div>
+    <div class="licence-grid">
+      <div class="lic">
+        <h3>Noncommercial</h3>
+        <p>carafe and skilldecant are licensed under the <a href="https://polyformproject.org/licenses/noncommercial/1.0.0" target="_blank" rel="noopener">PolyForm Noncommercial License 1.0.0</a>. Source access on request.</p>
+      </div>
+      <div class="lic pro">
+        <h3>Commercial</h3>
+        <p>Commercial use, including running them for a company's own staff or its clients, needs a separate written license from Cheng Cheng.</p>
+      </div>
+      <div class="lic">
+        <h3>Yours stays yours</h3>
+        <p>What a company writes as skills, and what a person keeps in their carafe, belongs to them.</p>
+      </div>
+      <div class="lic">
+        <h3>Third parties</h3>
+        <p>darwin is alchaincyf's, under MIT. Fleet, Claude Code, Codex, OpenClaw, Hermes, Homebrew and macOS keep their own terms.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+
+<footer class="site">
+  <div class="frame">
+    <p class="fine">© 2026 Cheng Cheng. Damaris X makes independent software. Claude and Claude Code are products of Anthropic; Codex is a product of OpenAI. Fleet is a product of Fleet Device Management Inc. darwin-skill is by alchaincyf, under the MIT license. OpenClaw, Hermes and Homebrew are their projects' own. Apple, Mac and macOS are trademarks of Apple Inc.; Raspberry Pi is a trademark of Raspberry Pi Ltd. Damaris X is not affiliated with or endorsed by any of them, or by Y Combinator.</p>
+  </div>
+</footer>
+
+<div class="deckbar" role="toolbar" aria-label="Slide controls">
+  <button type="button" id="prev-btn" aria-label="Previous slide">←</button>
+  <span class="count" id="count" aria-live="polite">1 / 10</span>
+  <button type="button" id="next-btn" aria-label="Next slide">→</button>
+  <button type="button" id="exit-btn">Exit</button>
+</div>
+<div class="deckhint">← → to move · Esc to leave</div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  root.classList.add('js');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var idx = 0;
+  var count = document.getElementById('count');
+
+  function fit() {
+    var s = Math.min(window.innerWidth / 1280, window.innerHeight / 720) * 0.96;
+    root.style.setProperty('--scale', s.toFixed(4));
+  }
+  function show(i) {
+    idx = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (el, j) { el.classList.toggle('current', j === idx); });
+    count.textContent = (idx + 1) + ' / ' + slides.length;
+    try { history.replaceState(null, '', '#' + slides[idx].id); } catch (e) {}
+  }
+  function nearest() {
+    var best = 0, bestD = Infinity;
+    slides.forEach(function (el, j) {
+      var d = Math.abs(el.getBoundingClientRect().top - 56);
+      if (d < bestD) { bestD = d; best = j; }
+    });
+    return best;
+  }
+  function start(i) {
+    root.classList.add('presenting');
+    fit();
+    show(typeof i === 'number' ? i : nearest());
+    if (root.requestFullscreen && window.matchMedia('(min-width: 700px)').matches) {
+      root.requestFullscreen().catch(function () {});
+    }
+  }
+  function stop() {
+    if (!root.classList.contains('presenting')) return;
+    root.classList.remove('presenting');
+    var target = slides[idx];
+    if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function () {});
+    try { history.replaceState(null, '', '#' + target.id); } catch (e) {}
+    target.scrollIntoView({ block: 'start' });
+  }
+
+  document.getElementById('present-btn').addEventListener('click', function () { start(); });
+  document.getElementById('prev-btn').addEventListener('click', function () { show(idx - 1); });
+  document.getElementById('next-btn').addEventListener('click', function () { show(idx + 1); });
+  document.getElementById('exit-btn').addEventListener('click', stop);
+  document.addEventListener('fullscreenchange', function () {
+    if (!document.fullscreenElement) setTimeout(fit, 50);
+  });
+  window.addEventListener('resize', function () { if (root.classList.contains('presenting')) fit(); });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    var on = root.classList.contains('presenting');
+    if (!on) {
+      if (e.key === 'p' || e.key === 'P') { e.preventDefault(); start(); }
+      return;
+    }
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].indexOf(e.key) > -1) { e.preventDefault(); show(idx + 1); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].indexOf(e.key) > -1) { e.preventDefault(); show(idx - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); show(0); }
+    else if (e.key === 'End') { e.preventDefault(); show(slides.length - 1); }
+    else if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { e.preventDefault(); stop(); }
+  });
+
+  // tap left or right third of the screen, or swipe, to move while presenting
+  var tx = null;
+  document.addEventListener('touchstart', function (e) { if (root.classList.contains('presenting')) tx = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    if (tx === null) return;
+    var dx = e.changedTouches[0].clientX - tx; tx = null;
+    if (Math.abs(dx) > 40) show(idx + (dx < 0 ? 1 : -1));
+  });
+  document.addEventListener('click', function (e) {
+    if (!root.classList.contains('presenting')) return;
+    if (e.target.closest('a, button, .deckbar')) return;
+    show(idx + (e.clientX > window.innerWidth / 2 ? 1 : -1));
+  });
+
+  var copy = document.getElementById('copy-btn');
+  copy.addEventListener('click', function () {
+    var text = document.getElementById('addr').textContent;
+    function selectIt() {
+      var r = document.createRange(); r.selectNodeContents(document.getElementById('addr'));
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    }
+    try {
+      navigator.clipboard.writeText(text).then(function () {
+        copy.textContent = 'Copied';
+        setTimeout(function () { copy.textContent = 'Copy address'; }, 1600);
+      }, selectIt);
+    } catch (e) { selectIt(); }
+  });
+
+  // open straight into the deck with #present, or on a given slide with #present on reload
+  if (location.hash === '#present') start(0);
+})();
+</script>
+</body>
+</html>
