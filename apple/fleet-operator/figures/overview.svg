@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -16 992 502" width="992" height="502" role="img" aria-label="An admin or an agent writes three resources to the cluster; the operator reads them, deploys Fleet and its databases with helm and writes Fleet through its API; fleetd on the station Macs connects to Fleet over HTTPS; another company's namespace is kept out by NetworkPolicy.">
+<style>
+svg {
+  --bg:#F5F6F8; --paper:#FFFFFF; --fg:#18202C; --muted:#5A6576; --line:#D6DBE3; --line-strong:#9AA4B3; --zone:#EEF1F5;
+  --accent:#8C2B47; --accent-soft:#F3E3E8; --ok:#2B7A57; --ok-soft:#E0F0E8; --bad:#B4352C; --bad-soft:#F7E2DF;
+  --warn:#9A6A12; --warn-soft:#F6ECD6; --code:#F0F2F5;
+  --sans:"IBM Plex Sans","Noto Sans SC","PingFang SC",system-ui,sans-serif;
+  --mono:"IBM Plex Mono","SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark) { svg {
+  --bg:#11151B; --paper:#171C24; --fg:#E4E8EE; --muted:#97A1B0; --line:#2B3340; --line-strong:#56606F; --zone:#1D232D;
+  --accent:#E27B97; --accent-soft:#3A1F29; --ok:#5DC59A; --ok-soft:#173327; --bad:#EE7B70; --bad-soft:#3A1E1B;
+  --warn:#E3B055; --warn-soft:#352915; --code:#1C222B;  } }
+text { font-family:var(--sans); font-size:13px; fill:var(--fg); }
+.b { font-weight:700; }
+.sub { fill:var(--muted); font-size:11.5px; }
+.m { font-family:var(--mono); font-size:12px; }
+.tag { fill:var(--muted); font-size:11.5px; letter-spacing:0.04em; }
+.lbl { font-size:12px; paint-order:stroke; stroke:var(--paper); stroke-width:5px; stroke-linejoin:round; }
+.lbl.acc { fill:var(--accent); }
+.lbl.bad { fill:var(--bad); }
+.lbl.ok { fill:var(--ok); }
+.box { fill:var(--paper); stroke:var(--line-strong); stroke-width:1.2; }
+.box.acc { stroke:var(--accent); stroke-width:1.8; }
+.box.dash { stroke-dasharray:5 4; }
+.zone { fill:none; stroke:var(--line-strong); stroke-width:1; }
+.ns { fill:var(--zone); stroke:var(--line); }
+.rel { fill:none; stroke:var(--muted); stroke-dasharray:5 4; }
+.ln { stroke:var(--fg); stroke-width:1.4; fill:none; }
+.ln.mut { stroke:var(--line-strong); }
+.ln.acc { stroke:var(--accent); stroke-width:1.8; }
+.ln.bad { stroke:var(--bad); stroke-dasharray:5 4; }
+.ln.ok { stroke:var(--ok); stroke-width:1.8; }
+.ln.wall { stroke:var(--bad); stroke-width:1.4; stroke-dasharray:3 4; }
+.mk { fill:var(--fg); } .mk.acc { fill:var(--accent); } .mk.bad { fill:var(--bad); } .mk.ok { fill:var(--ok); }
+.xb { fill:var(--paper); stroke:var(--bad); stroke-width:1.6; } .xl { stroke:var(--bad); stroke-width:1.8; }
+.vb { fill:var(--paper); stroke:var(--ok); stroke-width:1.6; } .vl { stroke:var(--ok); stroke-width:1.8; fill:none; }
+.band-w { fill:var(--warn-soft); } .band-a { fill:var(--accent-soft); } .band-o { fill:var(--ok-soft); }
+.tick { stroke:var(--line-strong); stroke-width:1; }
+.axis { stroke:var(--muted); stroke-width:1.2; }
+.ev { stroke:var(--fg); stroke-width:1.2; stroke-dasharray:2 3; }
+text { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+.m { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.panel { fill: var(--paper); stroke: var(--line); }
+</style>
+<rect class="panel" x="-15.5" y="-15.5" width="991" height="501" rx="10"/>
+      <defs>
+        <marker id="f1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mk"/></marker>
+        <marker id="f1c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mk acc"/></marker>
+        <marker id="f1b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mk bad"/></marker>
+      </defs>
+      <rect class="zone" x="160" y="12" width="580" height="446" rx="10"/>
+      <text class="tag" x="176" y="34">Kubernetes cluster · tested on kind</text>
+      <rect class="ns" x="180" y="46" width="540" height="270" rx="8"/>
+      <text class="tag" x="196" y="66">namespace fleet-a · your company</text>
+      <rect class="ns" x="180" y="340" width="540" height="100" rx="8"/>
+      <text class="tag" x="196" y="360">namespace fleet-b · another company, its own set</text>
+
+      <rect class="box acc" x="200" y="90" width="130" height="60" rx="6"/>
+      <text class="b" x="265" y="116" text-anchor="middle">operator</text>
+      <text class="sub" x="265" y="136" text-anchor="middle">Go · kubebuilder</text>
+      <rect class="box" x="200" y="190" width="130" height="106" rx="6"/>
+      <text class="b" x="265" y="212" text-anchor="middle">three resources</text>
+      <text class="m" x="265" y="236" text-anchor="middle">FleetServer</text>
+      <text class="m" x="265" y="256" text-anchor="middle">FleetConfig</text>
+      <text class="m" x="265" y="276" text-anchor="middle">MacStation</text>
+      <line class="ln" x1="245" y1="190" x2="245" y2="153" marker-end="url(#f1a)"/>
+      <text class="lbl" x="239" y="175" text-anchor="end">watch</text>
+      <line class="ln" x1="285" y1="150" x2="285" y2="187" marker-end="url(#f1a)"/>
+      <text class="lbl" x="291" y="175">status</text>
+
+      <rect class="rel" x="440" y="78" width="260" height="172" rx="8"/>
+      <text class="tag" x="452" y="96">Helm release · official chart</text>
+      <rect class="box" x="460" y="108" width="220" height="56" rx="6"/>
+      <text class="b" x="570" y="132" text-anchor="middle">Fleet server</text>
+      <text class="sub" x="570" y="152" text-anchor="middle">API · web · :8080</text>
+      <rect class="box" x="460" y="190" width="100" height="44" rx="6"/>
+      <text x="510" y="217" text-anchor="middle">MySQL</text>
+      <rect class="box" x="580" y="190" width="100" height="44" rx="6"/>
+      <text x="630" y="217" text-anchor="middle">Valkey</text>
+      <line class="ln mut" x1="510" y1="164" x2="510" y2="190"/>
+      <line class="ln mut" x1="630" y1="164" x2="630" y2="190"/>
+
+      <line class="ln" x1="330" y1="100" x2="437" y2="100" marker-end="url(#f1a)"/>
+      <text class="lbl" x="385" y="93" text-anchor="middle">helm install</text>
+      <line class="ln acc" x1="330" y1="136" x2="456" y2="136" marker-end="url(#f1c)"/>
+      <text class="lbl acc" x="385" y="129" text-anchor="middle">API writes</text>
+
+      <rect class="box" x="16" y="210" width="124" height="60" rx="6"/>
+      <text class="b" x="78" y="236" text-anchor="middle">admin or agent</text>
+      <text class="sub" x="78" y="256" text-anchor="middle">edit YAML</text>
+      <line class="ln" x1="140" y1="240" x2="197" y2="240" marker-end="url(#f1a)"/>
+      <text class="lbl" x="169" y="262" text-anchor="middle">apply</text>
+
+      <rect class="box" x="800" y="78" width="144" height="58" rx="6"/>
+      <text class="b" x="872" y="102" text-anchor="middle">Mac station 1</text>
+      <text class="sub" x="872" y="122" text-anchor="middle">fleetd</text>
+      <rect class="box" x="800" y="156" width="144" height="58" rx="6"/>
+      <text class="b" x="872" y="180" text-anchor="middle">Mac station 2</text>
+      <text class="sub" x="872" y="200" text-anchor="middle">fleetd</text>
+      <polyline class="ln" points="800,107 775,107 775,185 800,185"/>
+      <line class="ln" x1="775" y1="136" x2="683" y2="136" marker-end="url(#f1a)"/>
+      <text class="lbl" x="738" y="127" text-anchor="middle">HTTPS</text>
+      <text class="lbl" x="738" y="154" text-anchor="middle">NodePort</text>
+
+      <rect class="box" x="300" y="375" width="150" height="46" rx="6"/>
+      <text x="375" y="403" text-anchor="middle">operator · Fleet</text>
+      <rect class="box" x="480" y="375" width="150" height="46" rx="6"/>
+      <text x="555" y="403" text-anchor="middle">MySQL · Valkey</text>
+      <line class="ln bad" x1="570" y1="375" x2="570" y2="168" marker-end="url(#f1b)"/>
+      <circle class="xb" cx="570" cy="328" r="9"/>
+      <line class="xl" x1="565" y1="323" x2="575" y2="333"/><line class="xl" x1="575" y1="323" x2="565" y2="333"/>
+      <text class="lbl bad" x="586" y="332">NetworkPolicy blocks</text>
+    </svg>

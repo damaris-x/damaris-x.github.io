@@ -6,838 +6,698 @@
 <title>carafe Fleet Operator</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="A Kubernetes operator that runs Fleet and, through it, keeps always-on Mac stations for AI agents (Claude Code, Codex or your own) running, and runs the fix when a check fails.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 <style>
-/* Layout: one page that is also a 16:9 deck. Each <section class="slide"> is a page band
-   when scrolling and one slide when presenting. Palette and type follow the repo's figures. */
+/* Plain style. One serif column, default links, rules instead of boxes.
+   Each <section class="slide"> is a section of the page when scrolling and
+   one 1280 x 720 slide when presenting (html.presenting) or printing. */
 :root {
-  --bg: #F5F6F8;
-  --paper: #FFFFFF;
-  --fg: #18202C;
-  --muted: #5A6576;
-  --line: #D6DBE3;
-  --line-strong: #9AA4B3;
-  --zone: #EEF1F5;
-  --accent: #8C2B47;
-  --accent-soft: #F3E3E8;
-  --ok: #2B7A57;
-  --ok-soft: #E0F0E8;
-  --bad: #B4352C;
-  --bad-soft: #F7E2DF;
-  --term-bg: #18202C;
-  --term-fg: #E4E8EE;
-  --term-muted: #8D97A6;
-  --term-ok: #5DC59A;
-  --term-bad: #EE7B70;
-
-  --display: "IBM Plex Sans Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
-  --sans: "IBM Plex Sans", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
-
-  /* type scale (page mode: fluid; presenting and print: fixed to a 1280 x 720 stage) */
-  --t-hero: clamp(2.6rem, 6.2vw, 5.4rem);
-  --t-h2: clamp(1.9rem, 3.6vw, 3.1rem);
-  --t-lede: clamp(1.08rem, 1.35vw, 1.3rem);
-  --t-body: 1rem;
-  --t-small: 0.875rem;
-  --t-eyebrow: 0.78rem;
-  --t-code: 0.82rem;
-  --t-stat: clamp(2.2rem, 4vw, 3.4rem);
+  --bg: #FFFFFF;
+  --fg: #000000;
+  --muted: #444444;
+  --rule: #888888;
+  --link: #0000EE;
+  --visited: #551A8B;
+  --serif: Georgia, "Times New Roman", Times, serif;
+  --mono: Menlo, Consolas, "DejaVu Sans Mono", "Courier New", monospace;
+  color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #11151B; --paper: #171C24; --fg: #E4E8EE; --muted: #97A1B0; --line: #2B3340;
-    --line-strong: #56606F; --zone: #1D232D; --accent: #E27B97; --accent-soft: #3A1F29;
-    --ok: #5DC59A; --ok-soft: #173327; --bad: #EE7B70; --bad-soft: #3A1E1B;
-    --term-bg: #0B0E13; --term-fg: #E4E8EE; --term-muted: #7D8796; --term-ok: #5DC59A; --term-bad: #EE7B70;
+    --bg: #111111; --fg: #E6E6E6; --muted: #AAAAAA; --rule: #666666;
+    --link: #8AB4F8; --visited: #C58AF9;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #11151B; --paper: #171C24; --fg: #E4E8EE; --muted: #97A1B0; --line: #2B3340;
-  --line-strong: #56606F; --zone: #1D232D; --accent: #E27B97; --accent-soft: #3A1F29;
-  --ok: #5DC59A; --ok-soft: #173327; --bad: #EE7B70; --bad-soft: #3A1E1B;
-  --term-bg: #0B0E13; --term-fg: #E4E8EE; --term-muted: #7D8796; --term-ok: #5DC59A; --term-bad: #EE7B70;
+  --bg: #111111; --fg: #E6E6E6; --muted: #AAAAAA; --rule: #666666;
+  --link: #8AB4F8; --visited: #C58AF9;
   color-scheme: dark;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-@media (min-width: 900px) and (min-height: 640px) {
-  html { scroll-snap-type: y proximity; }
-}
 body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
-  font: 400 var(--t-body)/1.6 var(--sans);
-  -webkit-font-smoothing: antialiased;
+  font: 17px/1.5 var(--serif);
 }
-h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.04; letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
-p { margin: 0; }
-a { color: var(--accent); text-underline-offset: 3px; }
-code, .mono { font-family: var(--mono); }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+header.site, main, footer.site {
+  max-width: 70ch;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+header.site { padding-top: 12px; }
+header.site p { margin: 0 0 4px; }
+header.site hr { margin: 8px 0 0; }
+footer.site { padding-bottom: 32px; }
+
+a:link { color: var(--link); }
+a:visited { color: var(--visited); }
+h1 { font-size: 2em; line-height: 1.2; margin: 0.6em 0 0.5em; font-weight: bold; }
+h2 { font-size: 1.5em; line-height: 1.25; margin: 0.4em 0 0.5em; font-weight: bold; }
+h3 { font-size: 1.15em; line-height: 1.3; margin: 1.1em 0 0.3em; font-weight: bold; }
+p { margin: 0 0 0.8em; }
+@media (max-width: 500px) { h1 { font-size: 1.7em; } h2 { font-size: 1.35em; } }
+ul, ol { margin: 0 0 0.8em; padding-left: 1.6em; }
+li { margin: 0 0 0.35em; }
+dl { margin: 0 0 0.8em; }
+dt { font-weight: bold; margin-top: 0.6em; }
+dd { margin: 0.1em 0 0 2em; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2em 0; }
+code, pre, kbd { font-family: var(--mono); font-size: 0.86em; }
+pre {
+  margin: 0 0 0.8em; padding: 0; overflow-x: auto;
+  font-size: 13.5px; line-height: 1.4; white-space: pre;
+}
+figure { margin: 0 0 1em; min-width: 0; }
+figcaption { font-size: 0.9em; margin: 0.3em 0 0.4em; }
 img { max-width: 100%; height: auto; display: block; }
 
-/* ---------- top bar ---------- */
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
-.bar {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
-  display: flex; align-items: center; gap: 16px;
-  padding-block: 10px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--line);
+/* small plain lines: section labels, sources, fine print */
+.over { margin: 0 0 0.2em; font-size: 0.9em; color: var(--muted); }
+h3 + p, .over + h3 { margin-top: 0; }
+.over + h3 { margin-top: 0; }
+.src, .fine, .small { font-size: 0.85em; color: var(--muted); }
+
+.note { font-style: italic; font-size: 0.9em; margin: 0 0 1em; }
+header.site .note { margin: 4px 0 0; }
+.presenting .slide.current .note { font-size: 0.72em; max-width: none; margin-bottom: 1.1em; }
+@media print { .slide .note { font-size: 0.72em; max-width: none; margin-bottom: 1.1em; } }
+
+/* tables: 1px rules, nothing else */
+.scroll { overflow-x: auto; min-width: 0; margin: 0 0 0.8em; }
+table { border-collapse: collapse; font-size: 0.92em; }
+th, td { border: 1px solid var(--rule); padding: 0.25em 0.5em; text-align: left; vertical-align: top; }
+th { font-weight: bold; }
+td.nowrap { white-space: nowrap; }
+
+/* buttons that look like links */
+button.link {
+  font: inherit; color: var(--link); background: none; border: 0; padding: 0;
+  text-decoration: underline; cursor: pointer;
 }
-.mark { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 700; font-size: 1.1rem; color: var(--fg); text-decoration: none; }
-.mark svg { width: 22px; height: 22px; flex: none; }
-.mark span { color: var(--muted); font-weight: 500; }
-.bar nav { display: flex; gap: 18px; margin-left: auto; font-size: var(--t-small); }
-.bar nav a { color: var(--muted); text-decoration: none; }
-.bar nav a:hover { color: var(--fg); }
-.btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  font: 600 var(--t-small)/1 var(--sans);
-  padding: 10px 14px; border-radius: 6px; cursor: pointer;
-  border: 1px solid var(--accent); background: var(--accent); color: var(--paper);
-  text-decoration: none; white-space: nowrap;
-}
-.btn.ghost { background: transparent; color: var(--accent); }
-.btn svg { width: 14px; height: 14px; }
-@media (max-width: 760px) { .bar nav { display: none; } .bar .btn { margin-left: auto; } }
+#addr { font-family: var(--mono); font-size: 0.95em; }
 
-/* ---------- slides as page bands ---------- */
-.slide {
-  position: relative;
-  padding-block: clamp(56px, 9vh, 104px);
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  border-bottom: 1px solid var(--line);
-  scroll-snap-align: start;
-  scroll-margin-top: 56px;
-}
-@media (min-width: 900px) and (min-height: 640px) {
-  .slide { min-height: calc(100svh - 56px); display: flex; align-items: center; }
-}
-.slide.alt { background: var(--paper); }
-.frame { width: 100%; max-width: 1180px; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(28px, 4vw, 56px); }
-.split { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: center; }
-.split.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-.split.wide-left { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
-@media (max-width: 900px) { .split, .split.even, .split.wide-left { grid-template-columns: minmax(0, 1fr); } }
-.stack { display: grid; gap: 20px; align-content: start; min-width: 0; }
-
-.eyebrow {
-  font: 600 var(--t-eyebrow)/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--accent); display: flex; align-items: center; gap: 10px;
-}
-.eyebrow b { color: var(--muted); font-weight: 500; }
-h2 { font-size: var(--t-h2); }
-.lede { font-size: var(--t-lede); line-height: 1.5; color: var(--fg); max-width: 34em; }
-.muted { color: var(--muted); }
-.small { font-size: var(--t-small); }
-
-.points { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; max-width: 36em; }
-.points li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 12px; }
-.points li::before { content: ""; width: 8px; height: 8px; margin-top: 0.62em; border-radius: 1px; background: var(--accent); transform: rotate(45deg); }
-.points b { font-weight: 600; }
-
-.figure { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-width: 0; }
-.slide.alt .figure { background: var(--bg); }
-.slide:not(.alt) .figure { background: var(--paper); }
-.figure figcaption { font-size: var(--t-small); color: var(--muted); margin-top: 10px; }
-
-.src { font: 400 0.72rem/1.4 var(--mono); color: var(--muted); }
-
-/* ---------- hero ---------- */
-.hero h1 { font-size: var(--t-hero); line-height: 0.98; }
-.hero h1 em { font-style: normal; color: var(--accent); }
-.cta { display: flex; flex-wrap: wrap; gap: 12px; }
-.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--line); max-width: 34rem; }
-.stat { padding: 14px 16px 0 0; }
-.stat + .stat { padding-left: 16px; border-left: 1px solid var(--line); }
-.stat .n { font: 600 var(--t-stat)/1 var(--display); font-variant-numeric: tabular-nums; }
-.stat .n small { font-size: 0.45em; font-weight: 500; color: var(--muted); margin-left: 2px; }
-.stat .l { font-size: var(--t-small); color: var(--muted); margin-top: 6px; line-height: 1.35; }
-
-/* terminal */
-.term {
-  background: var(--term-bg); color: var(--term-fg); border-radius: 10px;
-  font: 400 var(--t-code)/1.55 var(--mono); min-width: 0;
-  box-shadow: 0 1px 0 var(--line), 0 24px 48px -28px rgba(10, 14, 20, 0.55);
-}
-.term-head { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); color: var(--term-muted); font-size: 0.74rem; }
-.term-head i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.18); }
-.term-head span { margin-left: 8px; }
-.term pre { margin: 0; padding: 14px 16px 16px; overflow-x: auto; font: inherit; white-space: pre; }
-.term .p { color: var(--term-muted); }
-.term .t { color: var(--term-ok); }
-.term .f { color: var(--term-bad); }
-.term .c { color: var(--term-muted); font-style: italic; }
-.term .row { display: block; }
-.term .row.hot { background: rgba(238, 123, 112, 0.10); }
-.term .row.fixed { background: rgba(93, 197, 154, 0.10); }
-@media (prefers-reduced-motion: no-preference) {
-  .js .term .row.anim { animation: rowin 0.5s ease both; animation-delay: var(--d, 0s); }
-  @keyframes rowin { from { opacity: 0.15; } to { opacity: 1; } }
-}
-
-/* ---------- tables ---------- */
-.tablewrap { overflow-x: auto; min-width: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
-.slide.alt .tablewrap { background: var(--bg); }
-table { border-collapse: collapse; width: 100%; font-size: var(--t-small); }
-th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
-tr:last-child td { border-bottom: 0; }
-th { font: 600 0.72rem/1.2 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); background: var(--zone); }
-td.k { font-family: var(--mono); font-weight: 600; white-space: nowrap; color: var(--accent); }
-td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.pill { display: inline-block; font: 600 0.7rem/1 var(--mono); letter-spacing: 0.04em; padding: 4px 7px; border-radius: 4px; white-space: nowrap; }
-.pill.ok { background: var(--ok-soft); color: var(--ok); }
-.pill.bad { background: var(--bad-soft); color: var(--bad); }
-.pill.next { background: var(--zone); color: var(--muted); border: 1px dashed var(--line-strong); }
-
-/* ---------- code card ---------- */
-.code { background: var(--term-bg); color: var(--term-fg); border-radius: 10px; min-width: 0; overflow: hidden; }
-.code pre { margin: 0; padding: 16px 18px; overflow-x: auto; font: 400 var(--t-code)/1.6 var(--mono); }
-.code .k { color: #E8A0B4; }
-.code .s { color: #A9D8C0; }
-.code .c { color: var(--term-muted); font-style: italic; }
-.code-label { display: flex; justify-content: space-between; padding: 9px 16px; font: 500 0.72rem/1 var(--mono); color: var(--term-muted); border-bottom: 1px solid rgba(255,255,255,0.08); }
-
-/* ---------- three resources ---------- */
-.kinds { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--paper); }
-.kind { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 16px; padding: 14px 16px; border-top: 1px solid var(--line); }
-.kind:first-child { border-top: 0; }
-.kind code { font-weight: 600; color: var(--accent); font-size: 0.9rem; }
-.kind small { display: block; font: 500 0.7rem/1.3 var(--mono); color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 3px; }
-.kind p { font-size: var(--t-small); }
-@media (max-width: 520px) { .kind { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
-
-/* ---------- problem cards ---------- */
-.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-@media (max-width: 900px) { .steps { grid-template-columns: minmax(0, 1fr); } }
-.step { border-top: 2px solid var(--fg); padding-top: 14px; display: grid; gap: 8px; align-content: start; }
-.step:last-child { border-top-color: var(--accent); }
-.steps.vertical, .presenting .steps.vertical { grid-template-columns: minmax(0, 1fr); gap: 14px; }
-.steps.vertical .step { padding-top: 10px; gap: 4px; }
-.steps.vertical .step h3 { font-size: 1.2rem; }
-#office .kind { padding-block: 11px; }
-.step .n { font: 600 0.75rem/1 var(--mono); color: var(--muted); letter-spacing: 0.08em; }
-.step h3 { font-size: 1.45rem; }
-.step p { font-size: var(--t-small); color: var(--muted); }
-
-/* ---------- rules (carafe) ---------- */
-.rules { display: grid; gap: 12px; }
-.rule { background: var(--accent-soft); border-radius: 8px; padding: 14px 16px; display: grid; gap: 4px; }
-.rule b { font-family: var(--display); font-size: 1.15rem; }
-.rule p { font-size: var(--t-small); }
-
-/* ---------- roadmap ---------- */
-.lanes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-@media (max-width: 900px) { .lanes { grid-template-columns: minmax(0, 1fr); } }
-.lane { border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; align-content: start; background: var(--paper); }
-.slide.alt .lane { background: var(--bg); }
-.lane h3 { font-size: 1.3rem; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.lane ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; font-size: var(--t-small); }
-.lane li { padding-left: 14px; border-left: 2px solid var(--line); }
-.lane.done li { border-left-color: var(--ok); }
-.lane.now li { border-left-color: var(--accent); }
-
-/* ---------- license ---------- */
-.contact { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.addr { font: 500 1.05rem/1 var(--mono); padding: 11px 14px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--paper); user-select: all; }
-.fine { font-size: 0.78rem; color: var(--muted); max-width: 60em; line-height: 1.55; }
-.licence-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-@media (max-width: 700px) { .licence-grid { grid-template-columns: minmax(0, 1fr); } }
-.lic { border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 6px; background: var(--bg); align-content: start; }
-.lic h3 { font-size: 1.3rem; }
-.lic p { font-size: var(--t-small); color: var(--muted); }
-.lic.pro { border-color: var(--accent); }
-
-/* ---------- deck controls ---------- */
-.deckbar {
-  position: fixed; z-index: 40; display: none; align-items: center; gap: 10px;
-  right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px));
-  font: 500 0.78rem/1 var(--mono); color: var(--muted);
-  background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 6px 6px 6px 12px;
-}
-.deckbar button { font: inherit; color: var(--fg); background: var(--zone); border: 1px solid var(--line); border-radius: 5px; padding: 7px 10px; cursor: pointer; }
-.deckbar .count { font-variant-numeric: tabular-nums; min-width: 4.5em; text-align: center; }
-.deckhint { position: fixed; z-index: 40; display: none; left: calc(16px + env(safe-area-inset-left, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); font: 400 0.72rem/1 var(--mono); color: var(--muted); }
+/* deck controls: hidden on the page */
+.deckbar, .deckhint { display: none; }
 
 /* ---------- presenting: one 1280 x 720 slide, scaled to fit ---------- */
-.presenting { scroll-snap-type: none; overflow: hidden; }
-.presenting body { overflow: hidden; height: 100%; }
-.presenting .bar, .presenting footer.site { display: none; }
-.presenting .deckbar, .presenting .deckhint { display: flex; }
+.presenting, .presenting body { overflow: hidden; height: 100%; }
+.presenting header.site, .presenting footer.site, .presenting main > hr,
+.presenting .hide-deck { display: none; }
+.presenting main { max-width: none; padding: 0; }
 .presenting .slide { display: none; }
 .presenting .slide.current {
-  display: flex; align-items: center;
+  display: block;
   position: fixed; left: 50%; top: 50%;
-  width: 1280px; height: 720px; min-height: 0;
-  padding: 56px 64px; border: 0;
+  width: 1280px; height: 720px;
+  padding: 44px 64px 64px;
+  overflow: hidden;
   transform: translate(-50%, -50%) scale(var(--scale, 1));
   transform-origin: center;
   background: var(--bg);
+  line-height: 1.4;
 }
-.presenting .slide.alt.current { background: var(--paper); }
-.presenting body { background: var(--zone); }
-.presenting, .print-deck {
-  --t-hero: 76px; --t-h2: 46px; --t-lede: 20px; --t-body: 16px; --t-small: 14.5px; --t-eyebrow: 12px; --t-code: 13px; --t-stat: 50px;
+.presenting .deckbar {
+  display: flex; align-items: center; gap: 14px;
+  position: fixed; z-index: 40;
+  right: calc(16px + env(safe-area-inset-right, 0px));
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  font: 14px/1 var(--mono); color: var(--muted); background: var(--bg);
+  padding: 4px 0 4px 8px;
 }
-.presenting .frame { max-width: none; }
-.presenting .split { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); }
-.presenting .split.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-.presenting .split.wide-left { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
-.presenting .steps, .presenting .lanes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.presenting .licence-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.presenting .hide-deck { display: none; }
+.presenting .deckbar button {
+  font: inherit; color: var(--link); background: none; border: 0; padding: 2px;
+  text-decoration: underline; cursor: pointer;
+}
+.presenting .deckhint {
+  display: block; position: fixed; z-index: 40;
+  left: calc(16px + env(safe-area-inset-left, 0px));
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  font: 13px/1 var(--mono); color: var(--muted);
+}
 
 /* ---------- print: one slide per page ---------- */
 @media print {
   @page { size: 13.333in 7.5in; margin: 0; }
-  :root { --t-hero: 76px; --t-h2: 46px; --t-lede: 20px; --t-body: 16px; --t-small: 14.5px; --t-eyebrow: 12px; --t-code: 13px; --t-stat: 50px; }
-  html { scroll-snap-type: none; }
-  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .bar, .deckbar, .deckhint, footer.site, .hide-deck { display: none !important; }
-  .slide { display: flex !important; align-items: center; position: static; transform: none; width: 1280px; height: 720px; min-height: 0; padding: 56px 64px; border: 0; break-after: page; overflow: hidden; }
-  .frame { max-width: none; }
-  .split { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); }
-  .split.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .split.wide-left { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
-  .steps, .lanes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  header.site, footer.site, main > hr, .deckbar, .deckhint, .hide-deck { display: none !important; }
+  main { max-width: none; padding: 0; }
+  .slide {
+    display: block !important; position: static; transform: none;
+    width: 1280px; height: 720px; padding: 44px 64px 64px;
+    overflow: hidden; break-after: page;
+    line-height: 1.4;
+  }
 }
 
-/* ---------- the five-layer cake ---------- */
-.cake { display: grid; gap: 6px; min-width: 0; }
-.layer {
-  --i: 0;
-  width: calc(100% - var(--i) * 6%); margin-inline: auto;
-  display: grid; grid-template-columns: 2.2rem minmax(0, 9rem) minmax(0, 1fr); align-items: center; gap: 12px;
-  padding: 12px 16px; border-radius: 6px;
-  background: var(--zone); border: 1px solid var(--line);
+/* ---------- slide layout, shared by presenting and print ---------- */
+.presenting .slide.current { font-size: 22px; }
+.presenting .slide.current h1 { font-size: 2em; margin: 0 0 0.45em; }
+.presenting .slide.current h2 { font-size: 1.6em; margin: 0 0 0.45em; }
+.presenting .slide.current h3 { font-size: 1.05em; }
+.presenting .slide.current pre { font-size: 16px; }
+.presenting .slide.current table { font-size: 0.82em; }
+.presenting .slide.current .src, .presenting .slide.current .small,
+.presenting .slide.current .fine { font-size: 0.74em; }
+.presenting .slide.current figcaption { font-size: 0.8em; }
+.presenting .slide.current > p { max-width: 62ch; }
+.presenting .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+.presenting .cols.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
+.presenting .cols.wl { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.presenting .cols.wr { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+.presenting .cols > * { min-width: 0; }
+.presenting .cols h3:first-child, .presenting .cols .over:first-child + h3 { margin-top: 0; }
+.presenting .slide.current.dense { font-size: 19px; }
+.presenting .slide.current.tight { font-size: 17.5px; }
+.presenting .slide.current.tight pre { font-size: 14.5px; }
+@media print {
+  .slide { font-size: 22px; }
+  .slide h1 { font-size: 2em; margin: 0 0 0.45em; }
+  .slide h2 { font-size: 1.6em; margin: 0 0 0.45em; }
+  .slide h3 { font-size: 1.05em; }
+  .slide pre { font-size: 16px; }
+  .slide table { font-size: 0.82em; }
+  .slide .src, .slide .small, .slide .fine { font-size: 0.74em; }
+  .slide figcaption { font-size: 0.8em; }
+  .slide > p { max-width: 62ch; }
+  .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+  .cols.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
+  .cols.wl { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+  .cols.wr { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+  .cols > * { min-width: 0; }
+  .cols h3:first-child, .cols .over:first-child + h3 { margin-top: 0; }
+  .slide.dense { font-size: 19px; }
+  .slide.tight { font-size: 17.5px; }
+  .slide.tight pre { font-size: 14.5px; }
 }
-.layer .no { font: 600 0.78rem/1 var(--mono); color: var(--muted); }
-.layer .nm { font: 700 1.15rem/1.1 var(--display); }
-.layer .ours { font-size: var(--t-small); color: var(--muted); min-width: 0; }
-.layer.here { background: var(--accent); border-color: var(--accent); color: var(--paper); }
-.layer.here .no, .layer.here .ours { color: var(--paper); opacity: 0.9; }
-.layer.here .nm::after { content: "we build this"; display: block; font: 600 0.66rem/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85; margin-top: 3px; }
-@media (max-width: 640px) {
-  .layer { width: 100%; grid-template-columns: 1.8rem minmax(0, 1fr); }
-  .layer .ours { grid-column: 2; }
-}
-.homelink { font: 600 0.78rem/1 var(--mono); color: var(--muted); text-decoration: none; border-left: 1px solid var(--line); padding-left: 14px; }
-.homelink:hover { color: var(--fg); }
-@media (max-width: 520px) { .homelink { display: none; } }
-.layerchip { font: 600 0.7rem/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 5px 9px; text-decoration: none; white-space: nowrap; }
-@media (max-width: 900px) { .layerchip { display: none; } }
-
-footer.site {
-  padding-block: 28px 40px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-}
-footer.site .frame { gap: 8px; }
 </style>
+<link rel="alternate" type="text/plain" href="/llms.txt" title="Plain-text copy for agents">
 </head>
 <body>
 
-<header class="bar">
-  <a class="mark" href="#top" aria-label="carafe Fleet Operator, top">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2.5h6M10 2.5v4.2c0 .6-.3 1.1-.7 1.5C6.9 10.3 5 13 5 16a7 7 0 0 0 14 0c0-3-1.9-5.7-4.3-7.8-.4-.4-.7-.9-.7-1.5V2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M6.4 14.5h11.2a5.6 5.6 0 0 1-11.2 1.5z" fill="var(--accent)"/></svg>
-    carafe <span>Fleet Operator</span>
-  </a>
-  <a class="homelink" href="../" title="Damaris X home">Damaris X</a>
-  <a class="layerchip" href="#stack" title="Where carafe sits in the AI stack">Layer 3 of 5 · Infrastructure</a>
-  <nav aria-label="Sections">
-    <a href="#stack">AI stack</a>
-    <a href="#shape">How it works</a>
-    <a href="#agents">Any agent</a>
-    <a href="#remedy">Self-healing</a>
-    <a href="#security">Security</a>
-    <a href="#proof">Proof</a>
-    <a href="#office">Small office</a>
-    <a href="#license">Licensing</a>
-  </nav>
-  <button class="btn" type="button" id="present-btn" aria-label="Present as slides">
-    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12v8H2zM8 11v3M5 14h6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-    Present
-  </button>
+<header class="site">
+<p><b><a href="#top">carafe Fleet Operator</a></b> |
+<a href="../" title="Damaris X home">Damaris X</a> |
+<a href="#stack" title="Where carafe sits in the AI stack">Layer 3 of 5 · Infrastructure</a></p>
+<p><a href="#stack">AI stack</a> |
+<a href="#shape">How it works</a> |
+<a href="#agents">Any agent</a> |
+<a href="#remedy">Self-healing</a> |
+<a href="#security">Security</a> |
+<a href="#proof">Proof</a> |
+<a href="#office">Small office</a> |
+<a href="#license">Licensing</a> |
+<button class="link" type="button" id="present-btn">Present as slides</button> |
+Style: plain, <a href="../apple/fleet-operator/" data-style-switch>Apple-style</a></p>
+<p class="note">Plain HTML on purpose; a plain-text copy for agents is at <a href="../llms.txt">../llms.txt</a>.</p>
+<hr>
 </header>
 
 <main>
 
 <!-- 1 · hero -->
-<section class="slide hero" id="top" aria-label="carafe Fleet Operator">
-  <div class="frame split even">
-    <div class="stack">
-      <div class="eyebrow">carafe <b>/</b> always-on Macs for AI agents</div>
-      <h1>Declare your Macs. <em>Kubernetes keeps them.</em></h1>
-      <p class="lede">The carafe Fleet operator runs <a href="https://fleetdm.com" target="_blank" rel="noopener">Fleet</a>, the open-source device manager from FleetDM, inside your cluster. Through Fleet it checks that every Mac station is awake, logged in and running its AI agent (Claude Code, Codex or your own), and runs the configured fix when a check fails.</p>
-      <div class="cta hide-deck">
-        <a class="btn" href="#shape">See how it works</a>
-        <a class="btn ghost" href="#license">Licensing</a>
-      </div>
-      <div class="stats" aria-label="Measured in the lab">
-        <div class="stat"><div class="n">51<small>s</small></div><div class="l">to notice a stopped agent page</div></div>
-        <div class="stat"><div class="n">142<small>s</small></div><div class="l">until it is running again</div></div>
-        <div class="stat"><div class="n">0</div><div class="l">people touching the Mac</div></div>
-      </div>
-      <p class="src"><span class="pill next">lab-tested, not yet in production</span> Measured 2026-10-28 in a kind cluster against a macOS 26.5 VM, checks every minute.</p>
-    </div>
-    <div class="term" role="img" aria-label="kubectl watching a Mac station: the cellar door check goes false, the operator runs the remedy, and it is true again 142 seconds after it stopped.">
-      <div class="term-head"><i></i><i></i><i></i><span>kubectl -n fleet-a get macstations -w</span><span style="margin-left:auto">illustrative</span></div>
-<pre><span class="row anim" style="--d:.1s"><span class="p">NAME         ONLINE  CELLAR-DOOR  CHROME  SIGNED-IN  STATUS</span></span><span class="row anim" style="--d:.4s">station-01   <span class="t">true</span>    <span class="t">true</span>         <span class="t">true</span>    <span class="t">true</span>       <span class="t">ok</span></span><span class="row anim" style="--d:.9s"><span class="c"># 0 s    the agent's page is stopped on the Mac</span></span><span class="row hot anim" style="--d:1.4s">station-01   <span class="t">true</span>    <span class="f">false</span>        <span class="t">true</span>    <span class="t">true</span>       <span class="f">attention</span></span><span class="row anim" style="--d:1.9s"><span class="c"># 51 s   policy failing → remedy restart-cellar-door.sh</span></span><span class="row anim" style="--d:2.4s"><span class="c">#        script exit 0, output "ok"; host refetched</span></span><span class="row fixed anim" style="--d:2.9s">station-01   <span class="t">true</span>    <span class="t">true</span>         <span class="t">true</span>    <span class="t">true</span>       <span class="t">ok</span></span><span class="row anim" style="--d:3.4s"><span class="c"># 142 s  back, nobody at the screen</span></span></pre>
-    </div>
-  </div>
+<section class="slide" id="top" aria-label="carafe Fleet Operator">
+<div class="cols wr">
+<div>
+<p class="over">carafe / always-on Macs for AI agents</p>
+<h1>Declare your Macs. Kubernetes keeps them.</h1>
+<p class="lede">The carafe Fleet operator runs <a href="https://fleetdm.com" target="_blank" rel="noopener">Fleet</a>, the open-source device manager from FleetDM, inside your cluster. Through Fleet it checks that every Mac station is awake, logged in and running its AI agent (Claude Code, Codex or your own), and runs the configured fix when a check fails.</p>
+<p class="hide-deck"><a href="#shape">See how it works</a> | <a href="#license">Licensing</a></p>
+<ul aria-label="Measured in the lab">
+<li><b>51 s</b> to notice a stopped agent page</li>
+<li><b>142 s</b> until it is running again</li>
+<li><b>0</b> people touching the Mac</li>
+</ul>
+<p class="src">[lab-tested, not yet in production] Measured 2026-10-28 in a kind cluster against a macOS 26.5 VM, checks every minute.</p>
+</div>
+<figure>
+<figcaption><code>kubectl -n fleet-a get macstations -w</code> — illustrative</figcaption>
+<pre role="img" aria-label="kubectl watching a Mac station: the cellar door check goes false, the operator runs the remedy, and it is true again 142 seconds after it stopped.">NAME         ONLINE  CELLAR-DOOR  CHROME  SIGNED-IN  STATUS
+station-01   true    true         true    true       ok
+# 0 s    the agent's page is stopped on the Mac
+station-01   true    false        true    true       attention
+# 51 s   policy failing → remedy restart-cellar-door.sh
+#        script exit 0, output "ok"; host refetched
+station-01   true    true         true    true       ok
+# 142 s  back, nobody at the screen</pre>
+</figure>
+</div>
 </section>
+
+<hr>
 
 <!-- 2 · the five-layer cake -->
 <section class="slide" id="stack" aria-label="Where carafe sits in the AI stack">
-  <div class="frame split even">
-    <div class="stack">
-      <div class="eyebrow">Where it sits</div>
-      <h2>Five layers of AI. carafe is layer 3, the infrastructure.</h2>
-      <p class="lede">Jensen Huang describes AI as a five-layer stack: energy, chips, infrastructure, models and applications. Infrastructure includes power delivery, networking and the systems that run many processors as one machine. carafe is building that layer for AI agents: a Mac mini cloud that keeps each agent's machine powered, connected and running.</p>
-      <p class="src">Framework from Jensen Huang, <a href="https://blogs.nvidia.com/blog/ai-5-layer-cake/" target="_blank" rel="noopener">"AI Is a 5-Layer Cake"</a>, NVIDIA blog, 2026-03-10. Placing carafe on it is our reading; carafe is not affiliated with or endorsed by NVIDIA.</p>
-    </div>
-    <div class="cake" role="list" aria-label="The five layers, top to bottom">
-      <div class="layer" role="listitem" style="--i:4"><span class="no">5</span><span class="nm">Applications</span><span class="ours">where value is created: assistants and agents people use every day</span></div>
-      <div class="layer" role="listitem" style="--i:3"><span class="no">4</span><span class="nm">Models</span><span class="ours">Claude, GPT and open models, reached over the network</span></div>
-      <div class="layer here" role="listitem" style="--i:2"><span class="no">3</span><span class="nm">Infrastructure</span><span class="ours">carafe: power delivery, networking, remote hands and orchestration for always-on agent machines</span></div>
-      <div class="layer" role="listitem" style="--i:1"><span class="no">2</span><span class="nm">Chips</span><span class="ours">the processors that turn power into computation</span></div>
-      <div class="layer" role="listitem" style="--i:0"><span class="no">1</span><span class="nm">Energy</span><span class="ours">the power every token starts from</span></div>
-    </div>
-  </div>
+<div class="cols">
+<div>
+<p class="over">Where it sits</p>
+<h2>Five layers of AI. carafe is layer 3, the infrastructure.</h2>
+<p class="lede">Jensen Huang describes AI as a five-layer stack: energy, chips, infrastructure, models and applications. Infrastructure includes power delivery, networking and the systems that run many processors as one machine. carafe is building that layer for AI agents: a Mac mini cloud that keeps each agent's machine powered, connected and running.</p>
+<p class="src">Framework from Jensen Huang, <a href="https://blogs.nvidia.com/blog/ai-5-layer-cake/" target="_blank" rel="noopener">"AI Is a 5-Layer Cake"</a>, NVIDIA blog, 2026-03-10. Placing carafe on it is our reading; carafe is not affiliated with or endorsed by NVIDIA.</p>
+</div>
+<div class="scroll">
+<table aria-label="The five layers, top to bottom">
+<tbody>
+<tr><td>5</td><td><b>Applications</b></td><td>where value is created: assistants and agents people use every day</td></tr>
+<tr><td>4</td><td><b>Models</b></td><td>Claude, GPT and open models, reached over the network</td></tr>
+<tr><td>3</td><td><b>Infrastructure</b><br>[we build this]</td><td>carafe: power delivery, networking, remote hands and orchestration for always-on agent machines</td></tr>
+<tr><td>2</td><td><b>Chips</b></td><td>the processors that turn power into computation</td></tr>
+<tr><td>1</td><td><b>Energy</b></td><td>the power every token starts from</td></tr>
+</tbody>
+</table>
+</div>
+</div>
 </section>
+
+<hr>
 
 <!-- 3 · problem -->
-<section class="slide alt" id="problem" aria-label="The problem">
-  <div class="frame">
-    <div class="stack">
-      <div class="eyebrow">The problem</div>
-      <h2>An AI colleague only works while its computer is on.</h2>
-    </div>
-    <div class="steps">
-      <div class="step">
-        <span class="n">LID CLOSES</span>
-        <h3>The agent stops.</h3>
-        <p>Claude Code, Codex and other agents run on someone's laptop. Remote access helps, but only while that laptop is awake. Not everyone can keep a computer on, or set one up.</p>
-      </div>
-      <div class="step">
-        <span class="n">REAL WORK IS IN A BROWSER</span>
-        <h3>A container has no browser.</h3>
-        <p>Permit applications on government portals and design proposals happen in web pages. Claude in Chrome drives a real Chrome on a real desktop, so the plan is a Mac mini for each of them.</p>
-      </div>
-      <div class="step">
-        <span class="n">NOW THERE ARE N MACS</span>
-        <h3>Someone has to keep them alive.</h3>
-        <p>Every station must stay awake, logged in, with the agent and its browser running, and be fixed from afar when it is not. Doing that by hand in a device console adds one more place for settings to drift.</p>
-      </div>
-    </div>
-  </div>
+<section class="slide" id="problem" aria-label="The problem">
+<p class="over">The problem</p>
+<h2>An AI colleague only works while its computer is on.</h2>
+<div class="cols c3">
+<div>
+<p class="over">Lid closes</p>
+<h3>The agent stops.</h3>
+<p>Claude Code, Codex and other agents run on someone's laptop. Remote access helps, but only while that laptop is awake. Not everyone can keep a computer on, or set one up.</p>
+</div>
+<div>
+<p class="over">Real work is in a browser</p>
+<h3>A container has no browser.</h3>
+<p>Permit applications on government portals and design proposals happen in web pages. Claude in Chrome drives a real Chrome on a real desktop, so the plan is a Mac mini for each of them.</p>
+</div>
+<div>
+<p class="over">Now there are N Macs</p>
+<h3>Someone has to keep them alive.</h3>
+<p>Every station must stay awake, logged in, with the agent and its browser running, and be fixed from afar when it is not. Doing that by hand in a device console adds one more place for settings to drift.</p>
+</div>
+</div>
 </section>
 
-<!-- 3 · carafe -->
+<hr>
+
+<!-- 4 · carafe -->
 <section class="slide" id="carafe" aria-label="Where it fits: carafe">
-  <div class="frame split wide-left">
-    <div class="stack">
-      <div class="eyebrow">First use <b>/</b> carafe, for Claude Code</div>
-      <h2>One always-on Claude workspace per colleague, reachable from the phone.</h2>
-      <p class="lede">A <b>carafe</b> is one person's own container with Claude Code, their work folder and the company's skills. A <b>Mac station</b> runs the same setup natively on a Mac mini, with a real Chrome. Each has one web page, the <b>cellar door</b>, where the person signs in and turns on phone access. Then they work from the Claude app.</p>
-      <ul class="points">
-        <li><span>A session started from claude.ai/code, the same path the phone uses, drove Chrome on a Mac station. After a reboot the station came back by itself in about two minutes. A test on a real phone is still to come.</span></li>
-        <li><span>The Fleet operator reports every station's checks and runs the configured fix when one fails.</span></li>
-      </ul>
-    </div>
-    <div class="rules">
-      <div class="eyebrow">Two rules from the start</div>
-      <div class="rule"><b>Everyone signs in themselves.</b><p>The sign-in happens in the person's own browser, through Anthropic's flow, and the code goes straight into their own carafe. carafe keeps no copy of anyone's Claude credentials.</p></div>
-      <div class="rule"><b>Claude's questions are the person's to answer.</b><p>"Trust this folder?" and "Enable Remote Control?" are shown verbatim and answered by the person. carafe never answers them for anyone.</p></div>
-      <div class="rule"><b>The operator respects that line.</b><p>The <code>signed-in</code> check has no remedy. Signing in again needs the person, so the operator reports it and stops there.</p></div>
-    </div>
-  </div>
+<div class="cols wl">
+<div>
+<p class="over">First use / carafe, for Claude Code</p>
+<h2>One always-on Claude workspace per colleague, reachable from the phone.</h2>
+<p class="lede">A <b>carafe</b> is one person's own container with Claude Code, their work folder and the company's skills. A <b>Mac station</b> runs the same setup natively on a Mac mini, with a real Chrome. Each has one web page, the <b>cellar door</b>, where the person signs in and turns on phone access. Then they work from the Claude app.</p>
+<ul>
+<li>A session started from claude.ai/code, the same path the phone uses, drove Chrome on a Mac station. After a reboot the station came back by itself in about two minutes. A test on a real phone is still to come.</li>
+<li>The Fleet operator reports every station's checks and runs the configured fix when one fails.</li>
+</ul>
+</div>
+<div>
+<h3>Two rules from the start</h3>
+<dl>
+<dt>Everyone signs in themselves.</dt>
+<dd>The sign-in happens in the person's own browser, through Anthropic's flow, and the code goes straight into their own carafe. carafe keeps no copy of anyone's Claude credentials.</dd>
+<dt>Claude's questions are the person's to answer.</dt>
+<dd>"Trust this folder?" and "Enable Remote Control?" are shown verbatim and answered by the person. carafe never answers them for anyone.</dd>
+<dt>The operator respects that line.</dt>
+<dd>The <code>signed-in</code> check has no remedy. Signing in again needs the person, so the operator reports it and stops there.</dd>
+</dl>
+</div>
+</div>
 </section>
 
-<!-- 4 · shape -->
-<section class="slide alt" id="shape" aria-label="How it works">
-  <div class="frame split">
-    <div class="stack">
-      <div class="eyebrow">How it works</div>
-      <h2>One operator. Three resources. One writer.</h2>
-      <p class="lede">The operator owns Fleet: it deploys it, sets it up, configures it and upgrades it. Fleet in turn manages the Macs. The operator is meant to be the only thing that writes to Fleet.</p>
-      <div class="kinds">
-        <div class="kind"><div><code>FleetServer</code><small>one per company</small></div><p>Fleet, MySQL and Valkey from the official Helm chart: <code>spec.version</code> picks Fleet, <code>spec.chartVersion</code> the chart. Then TLS, the first admin, an API user, Secrets, NodePort and NetworkPolicies.</p></div>
-        <div class="kind"><div><code>FleetConfig</code><small>one per company</small></div><p>Policies, scripts and labels, kept matching the spec: removed from the spec means removed from Fleet. Built-in and person labels are left alone.</p></div>
-        <div class="kind"><div><code>MacStation</code><small>one per person</small></div><p>An enrolled Mac, found by serial number: labelled with its person, every check in <code>status</code>, and the remedy script run when a check fails.</p></div>
-      </div>
-    </div>
-    <figure class="figure" style="margin:0">
-      <img src="figures/overview.svg" width="992" height="502" alt="An admin or an agent writes three resources; the operator deploys Fleet with Helm and writes it through its API; fleetd on the Mac stations connects over HTTPS; another company's namespace is kept out.">
-      <figcaption>The operator deploys Fleet with Helm and writes it through its API. Another company's namespace is a separate copy, kept out by NetworkPolicy.</figcaption>
-    </figure>
-  </div>
+<hr>
+
+<!-- 5 · shape -->
+<section class="slide tight" id="shape" aria-label="How it works">
+<div class="cols wr">
+<div>
+<p class="over">How it works</p>
+<h2>One operator. Three resources. One writer.</h2>
+<p class="lede">The operator owns Fleet: it deploys it, sets it up, configures it and upgrades it. Fleet in turn manages the Macs. The operator is meant to be the only thing that writes to Fleet.</p>
+<dl>
+<dt><code>FleetServer</code> — one per company</dt>
+<dd>Fleet, MySQL and Valkey from the official Helm chart: <code>spec.version</code> picks Fleet, <code>spec.chartVersion</code> the chart. Then TLS, the first admin, an API user, Secrets, NodePort and NetworkPolicies.</dd>
+<dt><code>FleetConfig</code> — one per company</dt>
+<dd>Policies, scripts and labels, kept matching the spec: removed from the spec means removed from Fleet. Built-in and person labels are left alone.</dd>
+<dt><code>MacStation</code> — one per person</dt>
+<dd>An enrolled Mac, found by serial number: labelled with its person, every check in <code>status</code>, and the remedy script run when a check fails.</dd>
+</dl>
+</div>
+<figure>
+<img src="figures/overview.svg" width="992" height="502" alt="An admin or an agent writes three resources; the operator deploys Fleet with Helm and writes it through its API; fleetd on the Mac stations connects over HTTPS; another company's namespace is kept out.">
+<figcaption>Figure 1. The operator deploys Fleet with Helm and writes it through its API. Another company's namespace is a separate copy, kept out by NetworkPolicy.</figcaption>
+</figure>
+</div>
 </section>
 
-<!-- 5 · the spec -->
-<section class="slide" id="spec" aria-label="What you write">
-  <div class="frame split even">
-    <div class="stack">
-      <div class="eyebrow">What you write</div>
-      <h2>A health check and its fix, declared in YAML.</h2>
-      <p class="lede">Each policy is an osquery check that runs on every Mac. Give it a <code>remedy</code> and the operator runs that script when the check fails and the Mac is online. Give it none and the operator only reports.</p>
-      <ul class="points">
-        <li><span><b>Five station checks</b> ship in the example: never sleeps, logs in by itself, the agent page answers, Chrome is running, Claude is signed in.</span></li>
-        <li><span><b><code>kubectl get macstations</code></b> shows every person's Mac, with the five station checks as columns.</span></li>
-        <li><span><b>Hand edits are reverted</b> at the next drift check.</span></li>
-      </ul>
-    </div>
-    <div class="code" role="region" aria-label="Example FleetConfig and MacStation">
-      <div class="code-label"><span>stations.yaml, excerpt</span><span>carafe.damaris.club/v1alpha1</span></div>
-<pre><span class="k">kind</span>: FleetConfig
-<span class="k">spec</span>:
-  <span class="k">serverRef</span>: fleet
-  <span class="k">policies</span>:
-  - <span class="k">key</span>: cellar-door
-    <span class="k">platform</span>: darwin
-    <span class="k">query</span>: <span class="s">SELECT 1 FROM curl WHERE url =
-      'http://127.0.0.1:7681/healthz' AND response_code = 200;</span>
-    <span class="k">remedy</span>: restart-cellar-door.sh   <span class="c"># run when it fails</span>
-  - <span class="k">key</span>: signed-in
-    <span class="k">query</span>: <span class="s">SELECT 1 FROM curl WHERE url =
-      'http://127.0.0.1:7681/signedin' AND result = 'yes';</span>
-    <span class="c"># no remedy: signing in again is the person's job</span>
+<hr>
+
+<!-- 6 · the spec -->
+<section class="slide dense" id="spec" aria-label="What you write">
+<div class="cols wr">
+<div>
+<p class="over">What you write</p>
+<h2>A health check and its fix, declared in YAML.</h2>
+<p class="lede">Each policy is an osquery check that runs on every Mac. Give it a <code>remedy</code> and the operator runs that script when the check fails and the Mac is online. Give it none and the operator only reports.</p>
+<ul>
+<li><b>Five station checks</b> ship in the example: never sleeps, logs in by itself, the agent page answers, Chrome is running, Claude is signed in.</li>
+<li><b><code>kubectl get macstations</code></b> shows every person's Mac, with the five station checks as columns.</li>
+<li><b>Hand edits are reverted</b> at the next drift check.</li>
+</ul>
+</div>
+<figure role="region" aria-label="Example FleetConfig and MacStation">
+<figcaption>stations.yaml, excerpt — carafe.damaris.club/v1alpha1</figcaption>
+<pre>kind: FleetConfig
+spec:
+  serverRef: fleet
+  policies:
+  - key: cellar-door
+    platform: darwin
+    query: SELECT 1 FROM curl WHERE url =
+      'http://127.0.0.1:7681/healthz' AND response_code = 200;
+    remedy: restart-cellar-door.sh   # run when it fails
+  - key: signed-in
+    query: SELECT 1 FROM curl WHERE url =
+      'http://127.0.0.1:7681/signedin' AND result = 'yes';
+    # no remedy: signing in again is the person's job
 ---
-<span class="k">kind</span>: MacStation
-<span class="k">spec</span>:
-  <span class="k">serverRef</span>: fleet
-  <span class="k">person</span>: ana
-  <span class="k">serial</span>: C02ABCDEF123
-  <span class="k">remedyBackoff</span>: 120          <span class="c"># seconds between fixes</span></pre>
-    </div>
-  </div>
+kind: MacStation
+spec:
+  serverRef: fleet
+  person: ana
+  serial: C02ABCDEF123
+  remedyBackoff: 120          # seconds between fixes</pre>
+</figure>
+</div>
 </section>
 
-<!-- 6 · any agent -->
-<section class="slide alt" id="agents" aria-label="Any agent on macOS">
-  <div class="frame split even">
-    <div class="stack">
-      <div class="eyebrow">Any agent</div>
-      <h2>Claude Code, Codex or your own agent.</h2>
-      <p class="lede">If it runs on macOS, the operator can watch it. A check is an osquery query, a fix is a shell script run as root, and both live in your spec. Anything osquery can see counts: a process, a launchd job, a port, a heartbeat file.</p>
-      <div class="tablewrap">
-        <table>
-          <thead><tr><th>agent on the station</th><th>what to check</th><th>status</th></tr></thead>
-          <tbody>
-            <tr><td>Claude Code, in a carafe Mac station</td><td>agent page answers, Chrome running, Claude signed in</td><td><span class="pill ok">lab-tested</span></td></tr>
-            <tr><td>OpenAI Codex CLI</td><td>process running, its LaunchAgent loaded</td><td><span class="pill next">same pattern</span></td></tr>
-            <tr><td>your own agent or bot</td><td>a process, a port, a heartbeat file</td><td><span class="pill next">same pattern</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="src">Lab-tested: carafe's checks and its agent page's recovery. Codex and custom agents are examples, not yet tested; their checks show in <code>status.checks</code>.</p>
-    </div>
-    <div class="code" role="region" aria-label="Example: keeping a Codex agent running">
-      <div class="code-label"><span>codex-station.yaml, excerpt</span><span>carafe.damaris.club/v1alpha1</span></div>
-<pre><span class="k">kind</span>: FleetConfig
-<span class="k">spec</span>:
-  <span class="k">serverRef</span>: fleet
-  <span class="k">scripts</span>:
-  - <span class="k">name</span>: restart-codex.sh
-    <span class="k">content</span>: |
-      <span class="s">#!/bin/sh
+<hr>
+
+<!-- 7 · any agent -->
+<section class="slide" id="agents" aria-label="Any agent on macOS">
+<div class="cols">
+<div>
+<p class="over">Any agent</p>
+<h2>Claude Code, Codex or your own agent.</h2>
+<p class="lede">If it runs on macOS, the operator can watch it. A check is an osquery query, a fix is a shell script run as root, and both live in your spec. Anything osquery can see counts: a process, a launchd job, a port, a heartbeat file.</p>
+<div class="scroll">
+<table>
+<thead><tr><th>agent on the station</th><th>what to check</th><th>status</th></tr></thead>
+<tbody>
+<tr><td>Claude Code, in a carafe Mac station</td><td>agent page answers, Chrome running, Claude signed in</td><td class="nowrap">[lab-tested]</td></tr>
+<tr><td>OpenAI Codex CLI</td><td>process running, its LaunchAgent loaded</td><td class="nowrap">[same pattern]</td></tr>
+<tr><td>your own agent or bot</td><td>a process, a port, a heartbeat file</td><td class="nowrap">[same pattern]</td></tr>
+</tbody>
+</table>
+</div>
+<p class="src">Lab-tested: carafe's checks and its agent page's recovery. Codex and custom agents are examples, not yet tested; their checks show in <code>status.checks</code>.</p>
+</div>
+<figure role="region" aria-label="Example: keeping a Codex agent running">
+<figcaption>codex-station.yaml, excerpt — carafe.damaris.club/v1alpha1</figcaption>
+<pre>kind: FleetConfig
+spec:
+  serverRef: fleet
+  scripts:
+  - name: restart-codex.sh
+    content: |
+      #!/bin/sh
       # your own LaunchAgent that runs Codex
       l=com.example.codex
       u=$(stat -f %Su /dev/console); uid=$(id -u "$u")
       launchctl kickstart -k "gui/$uid/$l" ||
         launchctl bootstrap "gui/$uid" \
-          "/Users/$u/Library/LaunchAgents/$l.plist"</span>
-  <span class="k">policies</span>:
-  - <span class="k">name</span>: "station: Codex is running"
-    <span class="k">key</span>: codex
-    <span class="k">platform</span>: darwin
-    <span class="k">query</span>: <span class="s">SELECT 1 FROM processes WHERE name = 'codex';</span>
-    <span class="k">remedy</span>: restart-codex.sh   <span class="c"># run when it fails</span></pre>
-    </div>
-  </div>
+          "/Users/$u/Library/LaunchAgents/$l.plist"
+  policies:
+  - name: "station: Codex is running"
+    key: codex
+    platform: darwin
+    query: SELECT 1 FROM processes WHERE name = 'codex';
+    remedy: restart-codex.sh   # run when it fails</pre>
+</figure>
+</div>
 </section>
 
-<!-- 7 · one writer -->
+<hr>
+
+<!-- 8 · one writer -->
 <section class="slide" id="one-writer" aria-label="One writer">
-  <div class="frame split">
-    <div class="stack">
-      <div class="eyebrow">Configuration drift</div>
-      <h2>The spec is the only truth. Hand edits are put back.</h2>
-      <p class="lede">No edits in Fleet's web page, no separate GitOps run, no tug of war between two tools. The operator reads Fleet back every five minutes and makes it match.</p>
-      <div class="tablewrap">
-        <table>
-          <thead><tr><th>what happened</th><th>what the operator did</th><th>measured</th></tr></thead>
-          <tbody>
-            <tr><td>a policy edited in the spec</td><td>applied to Fleet</td><td class="num">under 1 s</td></tr>
-            <tr><td>a policy added by hand in Fleet</td><td>removed</td><td class="num">at the next check</td></tr>
-            <tr><td>a script changed by hand in Fleet</td><td>put back</td><td class="num">287 s</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <figure class="figure" style="margin:0">
-      <img src="figures/one-writer.svg" width="792" height="252" alt="The spec goes into Fleet through the operator; a hand edit in Fleet's web page is read back within 5 minutes and removed or put back." loading="lazy">
-    </figure>
-  </div>
+<div class="cols wr">
+<div>
+<p class="over">Configuration drift</p>
+<h2>The spec is the only truth. Hand edits are put back.</h2>
+<p class="lede">No edits in Fleet's web page, no separate GitOps run, no tug of war between two tools. The operator reads Fleet back every five minutes and makes it match.</p>
+<div class="scroll">
+<table>
+<thead><tr><th>what happened</th><th>what the operator did</th><th>measured</th></tr></thead>
+<tbody>
+<tr><td>a policy edited in the spec</td><td>applied to Fleet</td><td>under 1 s</td></tr>
+<tr><td>a policy added by hand in Fleet</td><td>removed</td><td>at the next check</td></tr>
+<tr><td>a script changed by hand in Fleet</td><td>put back</td><td>287 s</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<figure>
+<img src="figures/one-writer.svg" width="792" height="252" alt="The spec goes into Fleet through the operator; a hand edit in Fleet's web page is read back within 5 minutes and removed or put back." loading="lazy">
+<figcaption>Figure 2. The spec goes into Fleet through the operator; a hand edit in Fleet's web page is read back within 5 minutes and removed or put back.</figcaption>
+</figure>
+</div>
 </section>
 
-<!-- 7 · self-healing -->
-<section class="slide alt" id="remedy" aria-label="Self-healing">
-  <div class="frame split">
-    <div class="stack">
-      <div class="eyebrow">Self-healing</div>
-      <h2>A failed check triggers its fix, carefully.</h2>
-      <p class="lede">The operator runs a remedy only when four things hold. That keeps a broken script from hammering a Mac, and skips Macs that are off.</p>
-      <ul class="points">
-        <li><span><b>The policy is failing</b>, per Fleet's own result.</span></li>
-        <li><span><b>The spec names a remedy</b> for it.</span></li>
-        <li><span><b>The Mac is online.</b> Nothing new is sent while Fleet reports it offline.</span></li>
-        <li><span><b>The backoff has passed</b> since the last run.</span></li>
-      </ul>
-      <p class="small muted">After a reboot every check came back with nobody touching the Mac. The operator works out boot time from uptime, because in the lab a quick reboot never showed as offline in Fleet; it landed within one second of the kernel's own boot time.</p>
-    </div>
-    <div class="stack">
-      <figure class="figure" style="margin:0">
-        <img src="figures/remedy-chain.svg" width="932" height="142" alt="The remedy chain: a failing policy, a remedy script, the Mac online and the backoff passed; only then the script runs and Fleet refetches the host." loading="lazy">
-      </figure>
-      <figure class="figure" style="margin:0">
-        <img src="figures/cellar-door-timeline.svg" width="932" height="182" alt="Measured with the Go operator: cellar door stopped at 0 s, failing at 51 s, back at 142 s." loading="lazy">
-        <figcaption>Measured, to scale: the agent's page stopped at 0 s, failing at 51 s, back at 142 s.</figcaption>
-      </figure>
-    </div>
-  </div>
+<hr>
+
+<!-- 9 · self-healing -->
+<section class="slide" id="remedy" aria-label="Self-healing">
+<div class="cols wr">
+<div>
+<p class="over">Self-healing</p>
+<h2>A failed check triggers its fix, carefully.</h2>
+<p class="lede">The operator runs a remedy only when four things hold. That keeps a broken script from hammering a Mac, and skips Macs that are off.</p>
+<ol>
+<li><b>The policy is failing</b>, per Fleet's own result.</li>
+<li><b>The spec names a remedy</b> for it.</li>
+<li><b>The Mac is online.</b> Nothing new is sent while Fleet reports it offline.</li>
+<li><b>The backoff has passed</b> since the last run.</li>
+</ol>
+<p class="small">After a reboot every check came back with nobody touching the Mac. The operator works out boot time from uptime, because in the lab a quick reboot never showed as offline in Fleet; it landed within one second of the kernel's own boot time.</p>
+</div>
+<div>
+<figure>
+<img src="figures/remedy-chain.svg" width="932" height="142" alt="The remedy chain: a failing policy, a remedy script, the Mac online and the backoff passed; only then the script runs and Fleet refetches the host." loading="lazy">
+<figcaption>Figure 3. The remedy chain: a failing policy, a remedy script, the Mac online and the backoff passed; only then the script runs and Fleet refetches the host.</figcaption>
+</figure>
+<figure>
+<img src="figures/cellar-door-timeline.svg" width="932" height="182" alt="Measured with the Go operator: cellar door stopped at 0 s, failing at 51 s, back at 142 s." loading="lazy">
+<figcaption>Figure 4. Measured, to scale: the agent's page stopped at 0 s, failing at 51 s, back at 142 s.</figcaption>
+</figure>
+</div>
+</div>
 </section>
 
-<!-- 8 · Fleet Free -->
+<hr>
+
+<!-- 10 · Fleet Free -->
 <section class="slide" id="free" aria-label="Runs on Fleet Free">
-  <div class="frame split even">
-    <div class="stack">
-      <div class="eyebrow">Fleet Free</div>
-      <h2>Runs on Fleet's free tier.</h2>
-      <p class="lede">Fleet's own "run a script when a policy fails" is a Premium feature. The operator does it itself with what the free tier already has: scripts, policies, labels and an API-only user.</p>
-      <p class="small muted">When we looked in October 2026 we found no Kubernetes operator for Fleet, from its maintainers or the community. The options were the Helm chart, a Terraform provider and <code>fleetctl gitops</code>. The operator uses the official chart rather than replacing it.</p>
-      <p class="src">Fleet tiers per fleetdm.com/pricing, read 2026-10-27.</p>
-    </div>
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th>capability</th><th>Fleet Free</th><th>with the operator</th></tr></thead>
-        <tbody>
-          <tr><td>policies, scripts, labels, API-only users</td><td><span class="pill ok">yes</span></td><td>declared in YAML</td></tr>
-          <tr><td>run a fix when a policy fails</td><td><span class="pill bad">Premium</span></td><td><span class="pill ok">yes</span> with backoff</td></tr>
-          <tr><td>install, set up, upgrade Fleet</td><td>separate tools: Helm, Terraform</td><td><span class="pill ok">yes</span> from <code>spec.version</code></td></tr>
-          <tr><td>keep Fleet matching a spec</td><td>when <code>fleetctl gitops</code> runs</td><td><span class="pill ok">yes</span> every 5 min</td></tr>
-          <tr><td>several companies apart</td><td>one org per install</td><td><span class="pill ok">yes</span> one per namespace</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+<div class="cols">
+<div>
+<p class="over">Fleet Free</p>
+<h2>Runs on Fleet's free tier.</h2>
+<p class="lede">Fleet's own "run a script when a policy fails" is a Premium feature. The operator does it itself with what the free tier already has: scripts, policies, labels and an API-only user.</p>
+<p class="small">When we looked in October 2026 we found no Kubernetes operator for Fleet, from its maintainers or the community. The options were the Helm chart, a Terraform provider and <code>fleetctl gitops</code>. The operator uses the official chart rather than replacing it.</p>
+<p class="src">Fleet tiers per fleetdm.com/pricing, read 2026-10-27.</p>
+</div>
+<div class="scroll">
+<table>
+<thead><tr><th>capability</th><th>Fleet Free</th><th>with the operator</th></tr></thead>
+<tbody>
+<tr><td>policies, scripts, labels, API-only users</td><td>[yes]</td><td>declared in YAML</td></tr>
+<tr><td>run a fix when a policy fails</td><td>[Premium]</td><td>[yes] with backoff</td></tr>
+<tr><td>install, set up, upgrade Fleet</td><td>separate tools: Helm, Terraform</td><td>[yes] from <code>spec.version</code></td></tr>
+<tr><td>keep Fleet matching a spec</td><td>when <code>fleetctl gitops</code> runs</td><td>[yes] every 5 min</td></tr>
+<tr><td>several companies apart</td><td>one org per install</td><td>[yes] one per namespace</td></tr>
+</tbody>
+</table>
+</div>
+</div>
 </section>
 
-<!-- 9 · security -->
-<section class="slide alt" id="security" aria-label="Security">
-  <div class="frame split">
-    <div class="stack">
-      <div class="eyebrow">Security</div>
-      <h2>The token that can run root on every Mac stays in one namespace.</h2>
-      <ul class="points">
-        <li><span><b>Least privilege in Fleet.</b> The operator's API user defaults to maintainer, the lowest role that can run scripts, not admin.</span></li>
-        <li><span><b>Least privilege in Kubernetes.</b> A namespaced Role, never a ClusterRole. The operator watches one namespace only.</span></li>
-        <li><span><b>NetworkPolicies by default.</b> MySQL and Valkey only from inside the namespace; from outside the cluster, only Fleet's port.</span></li>
-        <li><span><b>The AI agents' pods cannot reach Fleet.</b> The lab found that a pod going to a node's NodePort keeps its pod address, so the rule for the Macs excludes the pod network. In the kind lab, pods in other namespaces timed out on the Service, the NodePort and MySQL. Nothing else runs in Fleet's namespace.</span></li>
-      </ul>
-    </div>
-    <figure class="figure" style="margin:0">
-      <img src="figures/networkpolicy.svg" width="932" height="382" alt="A pod in another namespace is blocked both through the Service and through the node's NodePort, where its source address is still the pod's; a Mac coming in through the NodePort is let in." loading="lazy">
-      <figcaption>Blocked through the Service and through the NodePort. The Macs come in through the NodePort.</figcaption>
-    </figure>
-  </div>
+<hr>
+
+<!-- 11 · security -->
+<section class="slide dense" id="security" aria-label="Security">
+<div class="cols">
+<div>
+<p class="over">Security</p>
+<h2>The token that can run root on every Mac stays in one namespace.</h2>
+<ul>
+<li><b>Least privilege in Fleet.</b> The operator's API user defaults to maintainer, the lowest role that can run scripts, not admin.</li>
+<li><b>Least privilege in Kubernetes.</b> A namespaced Role, never a ClusterRole. The operator watches one namespace only.</li>
+<li><b>NetworkPolicies by default.</b> MySQL and Valkey only from inside the namespace; from outside the cluster, only Fleet's port.</li>
+<li><b>The AI agents' pods cannot reach Fleet.</b> The lab found that a pod going to a node's NodePort keeps its pod address, so the rule for the Macs excludes the pod network. In the kind lab, pods in other namespaces timed out on the Service, the NodePort and MySQL. Nothing else runs in Fleet's namespace.</li>
+</ul>
+</div>
+<figure>
+<img src="figures/networkpolicy.svg" width="932" height="382" alt="A pod in another namespace is blocked both through the Service and through the node's NodePort, where its source address is still the pod's; a Mac coming in through the NodePort is let in." loading="lazy">
+<figcaption>Figure 5. Blocked through the Service and through the NodePort. The Macs come in through the NodePort.</figcaption>
+</figure>
+</div>
 </section>
 
-<!-- 10 · tenants -->
+<hr>
+
+<!-- 12 · tenants -->
 <section class="slide" id="tenants" aria-label="One Fleet per company">
-  <div class="frame split wide-left">
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th>#</th><th>company A against company B</th><th>result</th></tr></thead>
-        <tbody>
-          <tr><td class="num">1</td><td>second Fleet comes up beside the first</td><td><span class="pill ok">71 s</span> first untouched</td></tr>
-          <tr><td class="num">2</td><td>each sees only its own hosts</td><td><span class="pill ok">apart</span></td></tr>
-          <tr><td class="num">3</td><td>one company's API token on the other's Fleet</td><td><span class="pill ok">401</span> both ways</td></tr>
-          <tr><td class="num">4</td><td>one company's enroll secret on the other's Fleet</td><td><span class="pill ok">401</span> both ways</td></tr>
-          <tr><td class="num">5</td><td>one company's CA on the other's Fleet</td><td><span class="pill ok">TLS refused</span></td></tr>
-          <tr><td class="num">6</td><td>a pod to the other's Fleet, MySQL, Valkey, NodePort</td><td><span class="pill ok">blocked</span> both ways</td></tr>
-          <tr><td class="num">7</td><td>one operator's account on the other's namespace</td><td><span class="pill ok">denied</span> both ways</td></tr>
-          <tr><td class="num">8</td><td>A's Mac declared as a station of B</td><td><span class="pill ok">not enrolled</span> nothing shown</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="stack">
-      <div class="eyebrow">Multi-company</div>
-      <h2>One Fleet per company, tested apart.</h2>
-      <p class="lede">Each company gets its own namespace, operator, Fleet, database and port, and later its own Apple push certificate. Fleet's free tier has one organization per install, so this is also how each company sees only its own name and its own Macs.</p>
-      <div class="stats">
-        <div class="stat"><div class="n">&lt;1<small>GB</small></div><div class="l">memory per company, 690–930 MB observed</div></div>
-        <div class="stat"><div class="n">~20<small>MB</small></div><div class="l">the operator itself</div></div>
-      </div>
-      <p class="src">Two companies side by side in the kind lab, 2026-10-28; the first had one Mac enrolled, the second none.</p>
-    </div>
-  </div>
+<div class="cols wr">
+<div>
+<p class="over">Multi-company</p>
+<h2>One Fleet per company, tested apart.</h2>
+<p class="lede">Each company gets its own namespace, operator, Fleet, database and port, and later its own Apple push certificate. Fleet's free tier has one organization per install, so this is also how each company sees only its own name and its own Macs.</p>
+<ul>
+<li><b>&lt;1 GB</b> memory per company, 690–930 MB observed</li>
+<li><b>~20 MB</b> the operator itself</li>
+</ul>
+<p class="src">Two companies side by side in the kind lab, 2026-10-28; the first had one Mac enrolled, the second none.</p>
+</div>
+<div class="scroll">
+<table>
+<thead><tr><th>#</th><th>company A against company B</th><th>result</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>second Fleet comes up beside the first</td><td>[71 s] first untouched</td></tr>
+<tr><td>2</td><td>each sees only its own hosts</td><td>[apart]</td></tr>
+<tr><td>3</td><td>one company's API token on the other's Fleet</td><td>[401] both ways</td></tr>
+<tr><td>4</td><td>one company's enroll secret on the other's Fleet</td><td>[401] both ways</td></tr>
+<tr><td>5</td><td>one company's CA on the other's Fleet</td><td>[TLS refused]</td></tr>
+<tr><td>6</td><td>a pod to the other's Fleet, MySQL, Valkey, NodePort</td><td>[blocked] both ways</td></tr>
+<tr><td>7</td><td>one operator's account on the other's namespace</td><td>[denied] both ways</td></tr>
+<tr><td>8</td><td>A's Mac declared as a station of B</td><td>[not enrolled] nothing shown</td></tr>
+</tbody>
+</table>
+</div>
+</div>
 </section>
 
-<!-- 11 · proof -->
-<section class="slide alt" id="proof" aria-label="Proof">
-  <div class="frame">
-    <div class="stack">
-      <div class="eyebrow">Proof <b>/</b> six checks, two implementations</div>
-      <h2>Built twice, measured twice.</h2>
-      <p class="lede">A Python proof of concept first, then a Go rewrite with kubebuilder and controller-runtime that runs inside the cluster, calling Helm's Go SDK in-process. Both passed the same six checks against a real macOS VM. The Python code was then removed.</p>
-    </div>
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th>#</th><th>check</th><th>Go operator, in the cluster</th><th>Python POC</th></tr></thead>
-        <tbody>
-          <tr><td class="k">A</td><td>empty namespace to a working Fleet, users and Secrets</td><td class="num"><span class="pill ok">pass</span> Ready in 71 s</td><td class="num">97 s</td></tr>
-          <tr><td class="k">B</td><td>spec applied; hand edits undone</td><td class="num"><span class="pill ok">pass</span> &lt; 1 s; 287 s</td><td class="num">2 s; 71 s</td></tr>
-          <tr><td class="k">C</td><td>a Mac enrolls and shows its checks</td><td class="num"><span class="pill ok">pass</span> listed after 10 s</td><td class="num">pass</td></tr>
-          <tr><td class="k">D</td><td>the agent page stopped, fixed by the operator</td><td class="num"><span class="pill ok">pass</span> 51 s / 142 s</td><td class="num">82 s / 171 s</td></tr>
-          <tr><td class="k">E</td><td>reboot, every check back untouched</td><td class="num"><span class="pill ok">pass</span> boot time ±1 s</td><td class="num">pass</td></tr>
-          <tr><td class="k">F</td><td>other namespaces cannot reach Fleet</td><td class="num"><span class="pill ok">pass</span> timeouts on all paths</td><td class="num">pass</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="src">Fleet 4.93.2, Helm chart 7.0.30, kind 0.33 with Kubernetes 1.37, macOS 26.5 VM. Lab checks ran every minute; about every five minutes is proposed for stations. Single runs, one macOS VM.</p>
-  </div>
+<hr>
+
+<!-- 13 · proof -->
+<section class="slide" id="proof" aria-label="Proof">
+<p class="over">Proof / six checks, two implementations</p>
+<h2>Built twice, measured twice.</h2>
+<p class="lede">A Python proof of concept first, then a Go rewrite with kubebuilder and controller-runtime that runs inside the cluster, calling Helm's Go SDK in-process. Both passed the same six checks against a real macOS VM. The Python code was then removed.</p>
+<div class="scroll">
+<table>
+<thead><tr><th>#</th><th>check</th><th>Go operator, in the cluster</th><th>Python POC</th></tr></thead>
+<tbody>
+<tr><td>A</td><td>empty namespace to a working Fleet, users and Secrets</td><td>[pass] Ready in 71 s</td><td>97 s</td></tr>
+<tr><td>B</td><td>spec applied; hand edits undone</td><td>[pass] &lt; 1 s; 287 s</td><td>2 s; 71 s</td></tr>
+<tr><td>C</td><td>a Mac enrolls and shows its checks</td><td>[pass] listed after 10 s</td><td>pass</td></tr>
+<tr><td>D</td><td>the agent page stopped, fixed by the operator</td><td>[pass] 51 s / 142 s</td><td>82 s / 171 s</td></tr>
+<tr><td>E</td><td>reboot, every check back untouched</td><td>[pass] boot time ±1 s</td><td>pass</td></tr>
+<tr><td>F</td><td>other namespaces cannot reach Fleet</td><td>[pass] timeouts on all paths</td><td>pass</td></tr>
+</tbody>
+</table>
+</div>
+<p class="src">Fleet 4.93.2, Helm chart 7.0.30, kind 0.33 with Kubernetes 1.37, macOS 26.5 VM. Lab checks ran every minute; about every five minutes is proposed for stations. Single runs, one macOS VM.</p>
 </section>
 
-<!-- 12 · roadmap -->
-<section class="slide" id="roadmap" aria-label="Status and roadmap">
-  <div class="frame">
-    <div class="stack">
-      <div class="eyebrow">Status</div>
-      <h2>Proven in the lab. Next: MDM and a first real office.</h2>
-      <p class="lede">Nothing here runs in production yet. Lab-tested; MDM, backups and a first office come next.</p>
-    </div>
-    <div class="lanes">
-      <div class="lane done">
-        <h3>Proven <span class="pill ok">lab</span></h3>
-        <ul>
-          <li>Go operator: install, configure, drift, remedy, reboot, isolation (A–F)</li>
-          <li>Two companies side by side, eight isolation checks</li>
-          <li>Unit tests against a fake Fleet and a fake API server, no cluster needed</li>
-          <li>Trusting the company CA on a Mac as root, with nobody at the screen</li>
-        </ul>
-      </div>
-      <div class="lane now">
-        <h3>Next <span class="pill next">planned</span></h3>
-        <ul>
-          <li>MDM: Apple push certificate in a Secret, expiry in <code>status</code>, enrollment profile from the API</li>
-          <li>First profile: Chrome's managed policy that installs Claude in Chrome</li>
-          <li>Nightly MySQL dump, with a restore tested before stations depend on it</li>
-          <li>The NetworkPolicy checks again on k3s; a per-company install overlay</li>
-        </ul>
-      </div>
-      <div class="lane">
-        <h3>Later <span class="pill next">open</span></h3>
-        <ul>
-          <li>Zero-touch enrollment through Apple Business Manager</li>
-          <li>Several fleets per install with Fleet Premium</li>
-          <li>OS updates, lock and wipe through MDM</li>
-          <li>A company-owned carafe box for small offices, with an engineer for setup and workflows</li>
-        </ul>
-      </div>
-    </div>
-  </div>
+<hr>
+
+<!-- 14 · roadmap -->
+<section class="slide dense" id="roadmap" aria-label="Status and roadmap">
+<p class="over">Status</p>
+<h2>Proven in the lab. Next: MDM and a first real office.</h2>
+<p class="lede">Nothing here runs in production yet. Lab-tested; MDM, backups and a first office come next.</p>
+<div class="cols c3">
+<div>
+<h3>Proven [lab]</h3>
+<ul>
+<li>Go operator: install, configure, drift, remedy, reboot, isolation (A–F)</li>
+<li>Two companies side by side, eight isolation checks</li>
+<li>Unit tests against a fake Fleet and a fake API server, no cluster needed</li>
+<li>Trusting the company CA on a Mac as root, with nobody at the screen</li>
+</ul>
+</div>
+<div>
+<h3>Next [planned]</h3>
+<ul>
+<li>MDM: Apple push certificate in a Secret, expiry in <code>status</code>, enrollment profile from the API</li>
+<li>First profile: Chrome's managed policy that installs Claude in Chrome</li>
+<li>Nightly MySQL dump, with a restore tested before stations depend on it</li>
+<li>The NetworkPolicy checks again on k3s; a per-company install overlay</li>
+</ul>
+</div>
+<div>
+<h3>Later [open]</h3>
+<ul>
+<li>Zero-touch enrollment through Apple Business Manager</li>
+<li>Several fleets per install with Fleet Premium</li>
+<li>OS updates, lock and wipe through MDM</li>
+<li>A company-owned carafe box for small offices, with an engineer for setup and workflows</li>
+</ul>
+</div>
+</div>
 </section>
 
-<!-- 13 · a small office -->
-<section class="slide alt" id="office" aria-label="Where it goes: a small office">
-  <div class="frame">
-    <div class="stack">
-      <div class="eyebrow">Where it goes <b>/</b> a small office <span class="pill next">direction, not built yet</span></div>
-      <h2>Next: an agent-ready office for a ten-person company.</h2>
-      <p class="lede">A small company has no IT team and no Kubernetes. The plan: it buys a carafe box that becomes its control plane, with no data centre to rent and nothing hosted by us. An engineer sets it up, then works on the team's workflows.</p>
-    </div>
-    <div class="frame split even" style="gap:32px; align-items:start">
-      <div class="kinds">
-        <div class="kind"><div><code>carafe box</code><small>the control plane</small></div><p>A Raspberry Pi 5 running k3s and the operator. The company owns it and decides who is admin; support would get in only with its approval, each visit logged.</p></div>
-        <div class="kind"><div><code>carafe</code><small>one per person</small></div><p>Claude Code, a work folder and the company's skills, on a host in the office, reached from the phone.</p></div>
-        <div class="kind"><div><code>Mac station</code><small>one per boundary</small></div><p>A Mac mini for each role that must stay apart: front desk, finance, back office, audit, the owner. Each checked and fixed by the operator through Fleet.</p></div>
-        <div class="kind"><div><code>network</code><small>the office's own</small></div><p>Claude Code's Remote Control <a href="https://code.claude.com/docs/en/remote-control#connection-and-security" target="_blank" rel="noopener">opens no inbound ports</a>, so phones need no public address; Fleet stays on the office LAN. A recommended UniFi kit would add a VLAN for the agents, PoE and a 5G backup line.</p></div>
-      </div>
-      <div class="steps vertical">
-        <div class="step">
-          <span class="n">SETUP</span>
-          <h3>The box goes in.</h3>
-          <p>An engineer, ours or a partner's, installs the box, sets up the network and sign-in, and gives everyone a carafe.</p>
-        </div>
-        <div class="step">
-          <span class="n">THE ENGAGEMENT</span>
-          <h3>Work, not plumbing.</h3>
-          <p>The setup is the same in every office, so the engineer's time goes to one or two workflows for each team.</p>
-        </div>
-        <div class="step">
-          <span class="n">AFTER</span>
-          <h3>Skills travel.</h3>
-          <p>Those workflows become skills that the next company of the same kind can start with. A subscription per person would cover monitoring, upgrades and skill updates.</p>
-        </div>
-      </div>
-    </div>
-  </div>
+<hr>
+
+<!-- 15 · a small office -->
+<section class="slide tight" id="office" aria-label="Where it goes: a small office">
+<p class="over">Where it goes / a small office [direction, not built yet]</p>
+<h2>Next: an agent-ready office for a ten-person company.</h2>
+<p class="lede">A small company has no IT team and no Kubernetes. The plan: it buys a carafe box that becomes its control plane, with no data centre to rent and nothing hosted by us. An engineer sets it up, then works on the team's workflows.</p>
+<div class="cols wl">
+<dl>
+<dt><code>carafe box</code> — the control plane</dt>
+<dd>A Raspberry Pi 5 running k3s and the operator. The company owns it and decides who is admin; support would get in only with its approval, each visit logged.</dd>
+<dt><code>carafe</code> — one per person</dt>
+<dd>Claude Code, a work folder and the company's skills, on a host in the office, reached from the phone.</dd>
+<dt><code>Mac station</code> — one per boundary</dt>
+<dd>A Mac mini for each role that must stay apart: front desk, finance, back office, audit, the owner. Each checked and fixed by the operator through Fleet.</dd>
+<dt><code>network</code> — the office's own</dt>
+<dd>Claude Code's Remote Control <a href="https://code.claude.com/docs/en/remote-control#connection-and-security" target="_blank" rel="noopener">opens no inbound ports</a>, so phones need no public address; Fleet stays on the office LAN. A recommended UniFi kit would add a VLAN for the agents, PoE and a 5G backup line.</dd>
+</dl>
+<div>
+<p class="over">Setup</p>
+<h3>The box goes in.</h3>
+<p>An engineer, ours or a partner's, installs the box, sets up the network and sign-in, and gives everyone a carafe.</p>
+<p class="over">The engagement</p>
+<h3>Work, not plumbing.</h3>
+<p>The setup is the same in every office, so the engineer's time goes to one or two workflows for each team.</p>
+<p class="over">After</p>
+<h3>Skills travel.</h3>
+<p>Those workflows become skills that the next company of the same kind can start with. A subscription per person would cover monitoring, upgrades and skill updates.</p>
+</div>
+</div>
 </section>
 
-<!-- 14 · licensing -->
+<hr>
+
+<!-- 16 · licensing -->
 <section class="slide" id="license" aria-label="Licensing and contact">
-  <div class="frame split even">
-    <div class="stack">
-      <div class="eyebrow">Licensing</div>
-      <h2>Source available. Free for noncommercial use. Licensed for companies.</h2>
-      <p class="lede">For IT teams that already run Kubernetes, for service providers who look after Macs for several small companies, for consultancies placing AI Mac stations with their clients, and, next, for small companies and the engineers who set them up.</p>
-      <div class="contact">
-        <span class="addr" id="addr">ccheng@ccheng.us</span>
-        <button class="btn ghost" type="button" id="copy-btn">Copy address</button>
-        <a class="btn hide-deck" href="mailto:ccheng@ccheng.us?subject=carafe%20Fleet%20operator">Write to us</a>
-      </div>
-      <p class="small muted">Write for a commercial license or a scoped pilot on your own Mac stations.</p>
-      <p class="fine">Independent software. Not affiliated with or endorsed by Fleet Device Management, Anthropic, OpenAI, NVIDIA, Apple, Raspberry Pi or Ubiquiti.</p>
-    </div>
-    <div class="licence-grid">
-      <div class="lic">
-        <h3>Noncommercial</h3>
-        <p>Free for the uses the <a href="https://polyformproject.org/licenses/noncommercial/1.0.0" target="_blank" rel="noopener">PolyForm Noncommercial License 1.0.0</a> permits.</p>
-      </div>
-      <div class="lic pro">
-        <h3>Commercial</h3>
-        <p>Commercial use, including running carafes for an organization's own staff or its clients, needs a separate written license signed by Cheng Cheng.</p>
-      </div>
-      <div class="lic">
-        <h3>Yours stays yours</h3>
-        <p>The licensor claims nothing in what a person keeps or makes in their carafe: workspace files, sessions, transcripts, the configuration carafe writes.</p>
-      </div>
-      <div class="lic">
-        <h3>Third parties</h3>
-        <p>Fleet, Claude Code, Codex and macOS keep their own terms. carafe's license covers carafe's own code only.</p>
-      </div>
-    </div>
-  </div>
+<div class="cols">
+<div>
+<p class="over">Licensing</p>
+<h2>Source available. Free for noncommercial use. Licensed for companies.</h2>
+<p class="lede">For IT teams that already run Kubernetes, for service providers who look after Macs for several small companies, for consultancies placing AI Mac stations with their clients, and, next, for small companies and the engineers who set them up.</p>
+<p><span id="addr">ccheng@ccheng.us</span> | <button class="link" type="button" id="copy-btn">Copy address</button><span class="hide-deck"> | <a href="mailto:ccheng@ccheng.us?subject=carafe%20Fleet%20operator">Write to us</a></span></p>
+<p class="small">Write for a commercial license or a scoped pilot on your own Mac stations.</p>
+<p class="fine">Independent software. Not affiliated with or endorsed by Fleet Device Management, Anthropic, OpenAI, NVIDIA, Apple, Raspberry Pi or Ubiquiti.</p>
+</div>
+<div>
+<h3>Noncommercial</h3>
+<p>Free for the uses the <a href="https://polyformproject.org/licenses/noncommercial/1.0.0" target="_blank" rel="noopener">PolyForm Noncommercial License 1.0.0</a> permits.</p>
+<h3>Commercial</h3>
+<p>Commercial use, including running carafes for an organization's own staff or its clients, needs a separate written license signed by Cheng Cheng.</p>
+<h3>Yours stays yours</h3>
+<p>The licensor claims nothing in what a person keeps or makes in their carafe: workspace files, sessions, transcripts, the configuration carafe writes.</p>
+<h3>Third parties</h3>
+<p>Fleet, Claude Code, Codex and macOS keep their own terms. carafe's license covers carafe's own code only.</p>
+</div>
+</div>
 </section>
 
 </main>
 
 <footer class="site">
-  <div class="frame">
-    <p class="fine">© 2026 Cheng Cheng. carafe is independent software. Fleet is a product of Fleet Device Management Inc., not to be confused with Rancher Fleet. Claude and Claude Code are products of Anthropic; Codex is a product of OpenAI. Apple, Mac and macOS are trademarks of Apple Inc. Raspberry Pi is a trademark of Raspberry Pi Ltd; UniFi is a trademark of Ubiquiti Inc. carafe is not affiliated with or endorsed by any of them. Part of <a href="../">Damaris X</a>.</p>
-  </div>
+<hr>
+<p class="fine">© 2026 Cheng Cheng. carafe is independent software. Fleet is a product of Fleet Device Management Inc., not to be confused with Rancher Fleet. Claude and Claude Code are products of Anthropic; Codex is a product of OpenAI. Apple, Mac and macOS are trademarks of Apple Inc. Raspberry Pi is a trademark of Raspberry Pi Ltd; UniFi is a trademark of Ubiquiti Inc. carafe is not affiliated with or endorsed by any of them. Part of <a href="../">Damaris X</a>.</p>
 </footer>
 
 <div class="deckbar" role="toolbar" aria-label="Slide controls">
@@ -949,5 +809,6 @@ footer.site .frame { gap: 8px; }
   if (location.hash === '#present') start(0);
 })();
 </script>
+<script>document.querySelectorAll("a[data-style-switch]").forEach(function(a){a.addEventListener("click",function(){a.href=a.getAttribute("href").split("#")[0]+location.hash;});});</script>
 </body>
 </html>

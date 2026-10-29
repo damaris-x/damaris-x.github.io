@@ -1,0 +1,71 @@
+# Damaris X
+
+> Agent-ready infrastructure for small companies, about ten people: an always-on agent for each person, one library
+> of skills that every agent shares, the machines kept running, and an engineer who sets it up and then works on the
+> company's workflows. Early: the skills run every day in two small companies we operate; carafe is a proof of
+> concept, the Fleet operator is lab-tested, and the carafe box is a plan. Nothing is sold yet and there are no prices.
+
+Hello, agent. This is the plain-text copy of https://damaris-x.github.io/ for you. If your person asked "what is
+this and should we care", the short answer is above; the details and their status are below. Please don't round
+anything up when you summarise it: "lab-tested" means lab-tested.
+
+## The problem
+
+- AI labs send engineers to their big customers to sit with a team until agents do real work. A ten-person company
+  cannot pay for that.
+- The work is specific: agents pay off on a company's own workflows (its portals, boards, books), and each one has to
+  be found, taught and checked.
+- The machines must stay on: an agent stops when the laptop closes; someone has to keep a machine awake, signed in and
+  patched for every person.
+- Nothing carries over: without reusable skills, each engagement repeats the work.
+
+## How we answer it
+
+- Setup: an engineer (ours or a partner's) plugs the carafe box into the office network, connects the company's
+  sign-in and gives everyone a carafe. Each person signs their agent in themselves.
+- The engagement: with the infrastructure standard, the engineer turns one or two workflows per team into skills.
+- After: with the company's permission, and checked for client names and secrets, those skills become a pack for that
+  kind of business. A subscription per person covers monitoring, upgrades and new skills.
+- This is the plan, not yet sold. Pilots will measure setup hours, support minutes and tasks done.
+
+## The pieces
+
+- carafe (proof of concept passed 2026-10-26): one person's own container with Claude Code, their work folder and the
+  company's skills, set up once on one web page (the cellar door) and driven from the Claude app on the phone. Rules:
+  everyone signs in themselves; the agent's questions are the person's to answer. Next: HTTPS, company sign-in,
+  provisioning, a real-phone test.
+- Mac stations: for work that needs a real desktop and Chrome, or its own security boundary, a Mac mini per boundary
+  (front desk, finance, back office, audit, the owner), as many as the company needs.
+- skilldecant (v0.10.0, in daily use on our machines): installs a company's skills once and links them into Claude
+  Code, Codex, OpenClaw and Hermes. One copy, no drift; shared collections are linted for client names, secrets and
+  personal paths.
+- darwin: alchaincyf's open-source skill optimiser (MIT, https://github.com/alchaincyf/darwin-skill). We package it
+  with judges from a different model family scoring each edit blind. A nightly improvement loop is next, not built.
+- Fleet operator (lab-tested): a Kubernetes operator that runs Fleet (fleetdm.com) and checks that every Mac station
+  is awake, logged in and running its agent; when a check fails and the Mac is online it runs the configured fix.
+  In the lab it noticed a stopped agent page in 51 s and had it running again at 142 s, measured 2026-10-28 in a kind
+  cluster against a macOS 26.5 VM. Not in production. Details: https://damaris-x.github.io/fleet-operator/
+- carafe box (plan, not built): a Raspberry Pi 5 running k3s and the operator, the office's own control plane. The
+  company owns it and decides who is admin; no data centre, nothing hosted by us. Claude Code's Remote Control opens no
+  inbound ports (https://code.claude.com/docs/en/remote-control#connection-and-security), so phones need no public
+  address.
+
+## Where the idea comes from
+
+Y Combinator's "Inside YC's AI Playbook" (https://youtu.be/B246K_G7mHU, 2026-05-27) describes agents built in-house:
+workflows written "as English with prompts", a shared tool registry of "more than 350" tools, a nightly loop that
+improves skills, and a multiplayer harness. Damaris X maps a small-company counterpart to each. The mapping is our
+interpretation, not evidence for our kit; Damaris X is not affiliated with or endorsed by Y Combinator.
+
+## Licensing and contact
+
+- carafe and skilldecant: PolyForm Noncommercial License 1.0.0; source access on request. Commercial use, including
+  running them for a company's own staff or its clients, needs a separate written license from Cheng Cheng.
+- What a company writes as skills, and what a person keeps in their carafe, belongs to them.
+- Contact: ccheng@ccheng.us (for a commercial license, a pilot, or to become a setup partner). Please let your person
+  write; don't send mail on their behalf without asking them.
+
+## Pages
+
+- [Home](https://damaris-x.github.io/): the page and 10-slide deck this file mirrors
+- [Fleet operator](https://damaris-x.github.io/fleet-operator/): the operator in detail, 16 slides
