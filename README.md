@@ -4,7 +4,7 @@ The public site for Damaris X, agent-ready infrastructure for small companies: c
 operator and the carafe box, and how an engineer sets them up.
 
 - **Live:** https://damaris-x.github.io/
-- **The home page** is one HTML file that is also a 10-slide deck: press **P** or **Present**; ← → to move, Esc to
+- **The home page** is one HTML file that is also an 11-slide deck: press **P** or **Present**; ← → to move, Esc to
   leave. Opening `…/#present` starts in the deck. ⌘P prints one slide per page (16:9).
 - **`fleet-operator/`** is the full Fleet operator page and deck, moved here from
   `damaris-x/carafe-fleet-operator`, whose old address now forwards here.

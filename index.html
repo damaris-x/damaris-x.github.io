@@ -191,6 +191,11 @@ button.link {
   .slide.tight { font-size: 17.5px; }
   .slide.tight pre { font-size: 14.5px; }
 }
+figure img { max-width: 100%; height: auto; display: block; border: 1px solid var(--rule, #ccc); }
+figure.keg img { border: 0; max-height: 15em; width: auto; }
+.presenting #skilldecant figure.keg img { max-height: 250px; }
+.presenting #cellar-door figure.wide img { max-height: 320px; width: auto; }
+#cellar-door .cols p { margin-top: 0; }
 </style>
 <link rel="alternate" type="text/plain" href="/llms.txt" title="Plain-text copy for agents">
 </head>
@@ -203,6 +208,7 @@ button.link {
 <a href="#monday">A Monday</a> |
 <a href="#playbook">Playbook</a> |
 <a href="#carafe">carafe</a> |
+<a href="#cellar-door">Cellar door</a> |
 <a href="#skilldecant">skilldecant</a> |
 <a href="#fleet">Fleet operator</a> |
 <a href="#status">Status</a> |
@@ -360,8 +366,6 @@ a Mac station per security boundary
 
 <!-- 6 · carafe -->
 <section class="slide" id="carafe" aria-label="carafe">
-<div class="cols wl">
-<div>
 <p class="over">carafe [proof of concept passed]</p>
 <h2>An always-on agent for each person, driven from the phone.</h2>
 <p class="lede">A <b>carafe</b> is one person's own container: Claude Code, their work folder and the company's skills. They set it up once on one web page, the <b>cellar door</b>, then work from the Claude app. No computer of theirs has to stay on.</p>
@@ -369,16 +373,19 @@ a Mac station per security boundary
 <li>Built and walked through end to end on 2026-10-26: sign-in, phone access turned on, a session started from claude.ai/code in a browser running in the carafe, and recovery after a restart. A test on a real phone is next.</li>
 <li>Designed for one namespace per person on k3s. For work that needs a real desktop and Chrome, or its own security boundary, a <b>Mac station</b> runs the same setup on a Mac mini: one for finance, one for audit, one for the owner, as many as the company needs.</li>
 </ul>
-</div>
-<div>
+</section>
+
+<section class="slide dense" id="cellar-door" aria-label="The cellar door">
+<p class="over">carafe / the cellar door</p>
+<h2>One page to set it up. After that, the phone.</h2>
+<figure class="wide">
+<img src="figures/cellar-door.png" width="1560" height="653" alt="The cellar door on a phone in three states. First: Sign in to Claude, with Open Claude sign-in, a box to paste the code and Finish sign-in. Second: signed in as ana@example.com; Turn on phone access shows Claude's question, Enable Remote Control?, with No and Yes. Third: Phone access is on; open the Claude app, Code, and look for ana.">
+<figcaption>The cellar door on a phone: sign in, answer Claude's own question, done. Rendered from the proof-of-concept code with example data.</figcaption>
+</figure>
 <h3>Two rules from the start</h3>
-<dl>
-<dt>Everyone signs in themselves.</dt>
-<dd>The sign-in happens in the person's own browser, through Anthropic's flow. The one-time code goes straight into their own carafe; the setup page keeps no copy.</dd>
-<dt>The agent's questions are the person's to answer.</dt>
-<dd>"Trust this folder?" and "Enable Remote Control?" are shown verbatim and answered by the person, never for them.</dd>
-</dl>
-</div>
+<div class="cols">
+<p><b>Everyone signs in themselves.</b> The sign-in happens in the person's own browser, through Anthropic's flow. The one-time code goes straight into their own carafe; the setup page keeps no copy.</p>
+<p><b>The agent's questions are the person's to answer.</b> "Trust this folder?" and "Enable Remote Control?" are shown verbatim and answered by the person, never for them.</p>
 </div>
 </section>
 
@@ -397,6 +404,11 @@ a Mac station per security boundary
 <li><b>Kept sharp.</b> <a href="https://github.com/alchaincyf/darwin-skill" target="_blank" rel="noopener">darwin</a>, alchaincyf's open-source skill optimiser (MIT), scores and improves a skill. Our packaging adds judges from a different model family, scoring each edit blind.</li>
 </ul>
 </div>
+<div>
+<figure class="keg">
+<picture><source srcset="figures/skilldecant-keg-dark.svg" media="(prefers-color-scheme: dark)"><img src="figures/skilldecant-keg-light.svg" width="640" height="400" alt="One keg of skills on a cradle, with four taps: OpenClaw, Hermes, Claude Code and Codex. Three pour from the same keg; the Codex tap is shut and tagged OFF until a machine turns it on."></picture>
+<figcaption>One keg, four taps, left to right: OpenClaw, Hermes, Claude Code, Codex. Codex's stays shut until a machine turns it on.</figcaption>
+</figure>
 <figure>
 <figcaption>how a skill reaches every agent</figcaption>
 <pre role="img" aria-label="The path of a skill: from its git repository, installed once by Homebrew, linked into every agent.">git repo       the skill's source, versioned
@@ -409,6 +421,7 @@ OpenClaw       link + one config entry
 Hermes         link + one config entry
 # upgrade once: every agent follows</pre>
 </figure>
+</div>
 </div>
 </section>
 
@@ -497,7 +510,7 @@ Hermes         link + one config entry
 
 <div class="deckbar" role="toolbar" aria-label="Slide controls">
   <button type="button" id="prev-btn" aria-label="Previous slide">←</button>
-  <span class="count" id="count" aria-live="polite">1 / 10</span>
+  <span class="count" id="count" aria-live="polite">1 / 11</span>
   <button type="button" id="next-btn" aria-label="Next slide">→</button>
   <button type="button" id="exit-btn">Exit</button>
 </div>
