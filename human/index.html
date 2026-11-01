@@ -471,6 +471,7 @@ td b { font-weight: 600; }
   -webkit-text-fill-color: transparent;
 }
 .figure.photo { padding: 10px; margin: 0; }
+@media screen { html:not(.presenting) #top h1 { font-size: clamp(2.4rem, 4.6vw, 4.25rem); } }
 .figure.photo img { width: 100%; height: auto; border-radius: 12px; }
 .figure.photo figcaption .pill { vertical-align: 0; }
 .presenting #top .figure.photo img, .print-deck #top .figure.photo img { max-height: 400px; width: auto; margin-inline: auto; }
@@ -527,7 +528,7 @@ td b { font-weight: 600; }
 
 <!-- 1 · hero: the AI contractor -->
 <section class="slide hero" id="top" aria-label="Damaris X, your AI contractor">
-  <div class="frame split">
+  <div class="frame split wide-left">
     <div class="stack">
       <div class="eyebrow">Damaris X <b>/</b> an AI contractor for small offices</div>
       <h1>We put AI to work in your office, <em>the way a contractor does a job.</em></h1>
