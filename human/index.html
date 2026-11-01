@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Damaris X</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Agent-ready infrastructure for small companies: an always-on agent for each person, one library of skills for every agent, machines that stay on, and an engineer who sets it up.">
+<meta name="description" content="An AI contractor for small offices: we come and look, quote a fixed job, install one box, hand it over against a checklist and keep it running. Under the hood: an always-on agent for each person, one library of skills, and machines that stay on.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -463,6 +463,36 @@ td b { font-weight: 600; }
 .keg img { width: 100%; height: auto; max-height: 260px; object-fit: contain; }
 .keg figcaption { font-size: var(--t-small); color: var(--muted); margin-top: 6px; }
 .presenting #skilldecant .keg img { max-height: 200px; }
+.hero h2 em {
+  display: block; width: fit-content; max-width: 100%;
+  font-style: normal; color: var(--accent);
+  background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.figure.photo { padding: 10px; margin: 0; }
+.figure.photo img { width: 100%; height: auto; border-radius: 12px; }
+.figure.photo figcaption .pill { vertical-align: 0; }
+.presenting #top .figure.photo img, .print-deck #top .figure.photo img { max-height: 400px; width: auto; margin-inline: auto; }
+@media print { #top .figure.photo img { max-height: 400px; width: auto; margin-inline: auto; } }
+.lic .points { gap: 9px; }
+.lanes.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 900px) { .lanes.two { grid-template-columns: minmax(0, 1fr); } }
+.presenting .lanes.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media print { .lanes.two { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.lane li b { font-weight: 600; }
+.lane.story { background: var(--tile); }
+.lane.story ul { gap: 12px; }
+.lane .small { color: var(--fg); }
+.presenting #solar .lane.story { padding: 18px 20px; }
+.presenting #solar .lane.story ul { font-size: 12.5px; gap: 7px; }
+.presenting #solar .frame { gap: 32px; }
+.presenting #hire .steps.vertical { gap: 6px; }
+.presenting #hire .steps.vertical .step { padding: 9px 16px 10px; }
+.presenting #hire .step p, .presenting #examples .lane ul { font-size: 13px; }
+.presenting #examples .lane { padding: 18px; gap: 10px; }
+.presenting #examples .lane ul { gap: 7px; }
+.presenting #examples .frame, .presenting #hire .frame { gap: 22px; }
 </style>
 <link rel="alternate" type="text/plain" href="/llms.txt" title="Plain-text copy for agents">
 <link rel="canonical" href="https://damaris-x.ai/">
@@ -475,12 +505,12 @@ td b { font-weight: 600; }
     Damaris X
   </a>
   <nav aria-label="Sections">
-    <a href="#problem">Problem</a>
-    <a href="#engineer">The engineer</a>
+    <a href="#hire">Hiring us</a>
+    <a href="#solar">A real example</a>
+    <a href="#examples">Examples</a>
     <a href="#monday">A Monday</a>
-    <a href="#playbook">Playbook</a>
+    <a href="#platform">Under the hood</a>
     <a href="#carafe">carafe</a>
-    <a href="#cellar-door">Cellar door</a>
     <a href="#skilldecant">skilldecant</a>
     <a href="#fleet">Fleet operator</a>
     <a href="#status">Status</a>
@@ -495,13 +525,154 @@ td b { font-weight: 600; }
 
 <main>
 
-<!-- 1 · hero -->
-<section class="slide hero" id="top" aria-label="Damaris X">
+<!-- 1 · hero: the AI contractor -->
+<section class="slide hero" id="top" aria-label="Damaris X, your AI contractor">
+  <div class="frame split">
+    <div class="stack">
+      <div class="eyebrow">Damaris X <b>/</b> an AI contractor for small offices</div>
+      <h1>We put AI to work in your office, <em>the way a contractor does a job.</em></h1>
+      <p class="lede">You hire us like any contractor. We come and look, quote a fixed price for a set job, install one box, hand it over against a checklist, and keep it running for a monthly fee. After that, AI does the follow-ups, the portal checks and the paperwork, and <b>a person approves anything that leaves the office.</b></p>
+      <div class="cta hide-deck">
+        <a class="btn" href="#hire">How hiring us works</a>
+        <a class="btn ghost" href="#solar">A real example</a>
+      </div>
+      <p class="src"><span class="pill next">early</span> Nothing is sold yet, so there are no prices here. <span class="pill ok">in daily use</span> The AI jobs already run every day in two small companies we operate.</p>
+    </div>
+    <figure class="figure photo">
+      <img src="../figures/carafe-box-bucket.jpg" width="1400" height="875" alt="Illustration: an orange 5-gallon bucket on an office floor, cut open to show three shelves: a battery at the bottom, a network switch and small boxes in the middle, three Mac minis on their sides at the top, and a fan in the lid. Two cables leave it, power and network.">
+      <figcaption>The box we're building: a battery, the office network gear, a small control computer and three Mac minis, in an orange 5-gallon bucket. Two cables in: power and network. <span class="pill next">prototype in progress</span> An AI-made illustration from our CAD model, not a photo.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 2 · hiring us -->
+<section class="slide alt" id="hire" aria-label="How hiring us works">
+  <div class="frame">
+    <div class="stack">
+      <div class="eyebrow">How hiring us works</div>
+      <h2>Like any contractor: look, quote, install, hand over, maintain.</h2>
+    </div>
+    <div class="frame split even">
+      <div class="steps vertical">
+        <div class="step"><span class="n">1 · LOOK</span><h3>We come and look.</h3><p>A visit to your office: who does what, where the hours go, which jobs could go to AI. You get a short written plan.</p></div>
+        <div class="step"><span class="n">2 · QUOTE</span><h3>You get a fixed quote.</h3><p>A set list of jobs, a price and a date. Want more later? We quote the change before we do it.</p></div>
+        <div class="step"><span class="n">3 · INSTALL</span><h3>We install the box.</h3><p>One box in a corner. It takes two cables, power and network. Each person signs in with their own account; we never hold your passwords.</p></div>
+        <div class="step"><span class="n">4 · HAND OVER</span><h3>We hand it over against a checklist.</h3><p>We go through it with you. Anything that fails gets fixed before we call it done.</p></div>
+        <div class="step"><span class="n">5 · MAINTAIN</span><h3>We keep it running.</h3><p>A monthly plan: we watch it from afar, fix what breaks, keep it up to date and add new jobs as you need them.</p></div>
+      </div>
+      <div class="stack">
+        <div class="lic">
+          <h3>The handover checklist</h3>
+          <ul class="points">
+            <li><span>Pull the box's power plug: it keeps running on its battery, and starts again by itself when the power is back.</span></li>
+            <li><span>Pull the network cable: the jobs pause, and catch up when the line is back.</span></li>
+            <li><span>Everyone asks the AI something from their own phone and gets an answer.</span></li>
+            <li><span>Each job in the quote runs on real work, start to finish, with a person approving what goes out.</span></li>
+            <li><span>When something stops, we get the alert, and you know who to call.</span></li>
+          </ul>
+        </div>
+        <p class="src"><span class="pill next">plan</span> The box is a prototype; these are the checks we are building it to pass.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · a real example -->
+<section class="slide" id="solar" aria-label="A real example: a solar installer we run">
+  <div class="frame split">
+    <div class="stack">
+      <div class="eyebrow">A real example <span class="pill ok">in use today</span></div>
+      <h2>From the first email to the paperwork, at a solar installer we run.</h2>
+      <p class="lede">This one is real. We run a small solar installer that designs systems, buys the materials and installs them. These jobs already run there today.</p>
+      <p class="lede"><b>The AI watches, records, drafts and reminds. People send contracts, approve prices, pay and sign.</b></p>
+    </div>
+    <div class="lane story">
+      <ul>
+        <li><b>New leads land on the sales board.</b> Each customer has a card on the sales board. The AI reads the customer mailbox and keeps each card up to date. A forwarded chat message or a note from a phone call can become a lead card too. The AI checks for the same customer first and asks once for missing information.</li>
+        <li><b>Contracts get prepared, not sent.</b> It goes through each blank with a person, one question at a time, shows a highlighted preview and makes the PDF for signing. A person sends it.</li>
+        <li><b>Signed deals become projects.</b> When a contract is signed in the e-signature service, it marks the sale as won. When a person starts it, the AI assigns a project number and copies a standard set of folders. It moves and checks the sales files, sets up the project board and checklist, and lists the information still missing.</li>
+        <li><b>Purchasing follows the deliveries.</b> It reads order, shipping, delivery and invoice emails and keeps the purchasing board current, even when one order arrives in several packages. A vendor's new prices go on the price list as “pending approval”, next to the old ones; only a person approves them.</li>
+        <li><b>Government letters become tasks.</b> A letter that needs action becomes a task for the finance team, with the original attached and its deadline as the due date. A letter that only confirms something gets no task.</li>
+        <li><b>Receipts become expense forms.</b> From a photo of a receipt it fills in the expense form, asking only how it was paid and which project it belongs to. A person attaches the receipt and presses Submit.</li>
+        <li><b>Sales summaries and regular checks.</b> It posts a weekly sales summary and checks the boards every hour for specific problems. Each board has written limits on what the AI may do there.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · illustrative examples -->
+<section class="slide alt" id="examples" aria-label="What it does in an office like yours">
+  <div class="frame">
+    <div class="stack">
+      <div class="eyebrow">What it does in an office like yours <span class="pill next">illustrative</span></div>
+      <h2>Two more offices, two more sets of jobs.</h2>
+      <p class="lede">Examples of work we could quote, not customer stories. Every office gets its own list after the first visit. In both, <b>a person approves anything that leaves the office.</b></p>
+    </div>
+    <div class="lanes two">
+      <div class="lane">
+        <h3>A real-estate brokerage</h3>
+        <ul>
+          <li><b>New enquiries get a reply drafted.</b> A buyer writes at 9 pm about a listing. The AI drafts a reply from the listing and the agent's calendar, ready for the agent to approve from the phone.</li>
+          <li><b>Showings get scheduled.</b> It suggests times that suit the buyer, the seller and the agent, and prepares the confirmations. The agent checks availability and access before approving them.</li>
+          <li><b>Listing descriptions start from your notes.</b> It drafts the description from the agent's notes and photos. The agent checks the facts and reviews it under the brokerage's advertising and fair-housing rules before it goes out.</li>
+          <li><b>Deal deadlines stay in view.</b> It keeps each deal's paperwork checklist and deadlines together, and reminds the right person days before something is due.</li>
+          <li><b>Monday starts with a summary.</b> New leads, showings, open deals and what is due this week, on one page.</li>
+        </ul>
+        <p class="small"><b>People give client advice, approve listing descriptions and approve every message that goes out.</b></p>
+      </div>
+      <div class="lane">
+        <h3>A small clinic</h3>
+        <ul>
+          <li><b>Appointment reminders.</b> It prepares reminders and rescheduling messages. Staff approve each message before it goes out.</li>
+          <li><b>Insurance details checked before the visit.</b> It checks insurance details on the portals the clinic already uses and flags missing or unclear information. Staff confirm what the visit needs.</li>
+          <li><b>Intake forms followed up.</b> It prepares the forms and the reminders for missing ones, and lays out the answers for staff.</li>
+          <li><b>Prior authorization requests drafted.</b> It fills in draft requests from information the clinic supplies. Staff check the details, add the clinical justification and submit.</li>
+          <li><b>Common questions answered from your policies.</b> Hours, parking, what to bring, how to pay: drafted from the clinic's own policies, for staff to approve.</li>
+          <li><b>Patient information handled with care.</b> Patient privacy rules (HIPAA) affect which jobs we can offer. Before we quote, we review with the clinic and its advisers which services would handle patient information and what agreements are needed, and we say up front which jobs we can't do within those limits. We make no compliance or certification claim.</li>
+        </ul>
+        <p class="small"><b>Staff approve every patient message, submit the paperwork and make the care decisions.</b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 4 · a Monday -->
+<section class="slide" id="monday" aria-label="A Monday with agents">
+  <div class="frame">
+    <div class="stack">
+      <div class="eyebrow">What changes for the team <span class="pill next">illustrative</span></div>
+      <h2>A Monday at a ten-person company, with an agent each.</h2>
+      <p class="lede">Nobody learns a new tool. Each person talks to their own agent from the phone, the agent works in the company's systems with the company's skills, and a person approves anything that leaves the building.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="n">THE BOOKS</span>
+        <h3>"Which invoices are overdue?"</h3>
+        <p>The person who chases payments asks from the train. The agent reads the books, drafts the reminders and posts them for approval. One tap, and it sends them and records what it did.</p>
+      </div>
+      <div class="step">
+        <span class="n">THE PORTALS</span>
+        <h3>"Anything new on our permits?"</h3>
+        <p>The agent checks the government portal in a real browser each morning, updates the job's card on the team's board, and flags what needs a person.</p>
+      </div>
+      <div class="step">
+        <span class="n">A NEW HIRE</span>
+        <h3>"How do we do this here?"</h3>
+        <p>Instead of interrupting a busy colleague, the new person asks the agent, which answers from the same skills everyone else uses. The floor rises for everyone.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · under the hood -->
+<section class="slide hero alt" id="platform" aria-label="Under the hood">
   <div class="frame split wide-left">
     <div class="stack">
-      <div class="eyebrow">Damaris X <b>/</b> agent-ready infrastructure for small companies</div>
-      <h1>What the best AI teams build for themselves, <em>installed in a ten-person company.</em></h1>
+      <div class="eyebrow">Under the hood <b>/</b> for technical readers and investors</div>
+      <h2>What the best AI teams build for themselves, <em>installed in a ten-person company.</em></h2>
       <p class="lede">An always-on agent for each person, one library of skills that every agent shares, and the machines kept running, set up by an engineer who then works on your workflows. The most AI-native teams build this with their own platform engineers. A ten-person company has none, so we bring it.</p>
+      <p class="small muted">Investors know this work as forward-deployed engineering (FDE). To an office, we are its AI contractor.</p>
       <div class="cta hide-deck">
         <a class="btn" href="#engineer">How it works</a>
         <a class="btn ghost" href="#status">Where it stands</a>
@@ -530,7 +701,7 @@ td b { font-weight: 600; }
     <div class="stack">
       <div class="eyebrow">The problem</div>
       <h2>Big companies get an engineer on site. Small companies can't pay for one.</h2>
-      <p class="lede">AI labs send engineers to their big customers, to sit with a team until the agents do real work. That is how agents earn their keep. At ten people, nobody pays for that.</p>
+      <p class="lede">AI labs send engineers to their big customers, forward-deployed engineers (FDEs), to sit with a team until the agents do real work. That is how agents earn their keep. At ten people, nobody pays for that.</p>
     </div>
     <div class="steps">
       <div class="step">
@@ -581,33 +752,6 @@ td b { font-weight: 600; }
   </div>
 </section>
 
-<!-- 4 · a Monday -->
-<section class="slide alt" id="monday" aria-label="A Monday with agents">
-  <div class="frame">
-    <div class="stack">
-      <div class="eyebrow">What changes for the team <span class="pill next">illustrative</span></div>
-      <h2>A Monday at a ten-person company, with an agent each.</h2>
-      <p class="lede">Nobody learns a new tool. Each person talks to their own agent from the phone, the agent works in the company's systems with the company's skills, and a person approves anything that leaves the building.</p>
-    </div>
-    <div class="steps">
-      <div class="step">
-        <span class="n">THE BOOKS</span>
-        <h3>"Which invoices are overdue?"</h3>
-        <p>The person who chases payments asks from the train. The agent reads the books, drafts the reminders and posts them for approval. One tap, and it sends them and records what it did.</p>
-      </div>
-      <div class="step">
-        <span class="n">THE PORTALS</span>
-        <h3>"Anything new on our permits?"</h3>
-        <p>The agent checks the government portal in a real browser each morning, updates the job's card on the team's board, and flags what needs a person.</p>
-      </div>
-      <div class="step">
-        <span class="n">A NEW HIRE</span>
-        <h3>"How do we do this here?"</h3>
-        <p>Instead of interrupting a busy colleague, the new person asks the agent, which answers from the same skills everyone else uses. The floor rises for everyone.</p>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- 3 · the playbook -->
 <section class="slide" id="playbook" aria-label="The playbook">
@@ -711,7 +855,7 @@ td b { font-weight: 600; }
       <div class="kind"><div><code>no data centre</code><small>the box is yours</small></div><p>The company owns the box and decides who is admin. Support would get in only with its approval, each visit logged.</p></div>
       <div class="kind"><div><code>no open ports</code><small>the office network</small></div><p>Claude Code's Remote Control <a href="https://code.claude.com/docs/en/remote-control#connection-and-security" target="_blank" rel="noopener">opens no inbound ports</a>, so phones need no public address. Fleet stays on the office LAN.</p></div>
       <div class="kind"><div><code>a Mac per boundary</code><small>as many as needed</small></div><p>Front desk, finance, back office, audit and the owner each get their own Mac, sign-ins and keys, so one role's agent is kept away from another's files and accounts. The operator keeps every one running.</p></div>
-      <div class="kind"><div><code>remote hands</code><small>planned</small></div><p>A 5G backup line, a battery and a KVM, added where a real failure calls for them.</p></div>
+      <div class="kind"><div><code>remote hands</code><small>planned</small></div><p>A battery and a KVM for each Mac are in the box design; a 5G backup line is added where a real failure calls for it.</p></div>
     </div>
   </div>
 </section>
@@ -731,8 +875,8 @@ td b { font-weight: 600; }
           <tr><td><b>skilldecant</b></td><td>installs skills once and links them into every agent</td><td><span class="pill ok">v0.10.0</span> on our own machines</td></tr>
           <tr><td><b>carafe</b></td><td>an always-on agent per person, from the phone</td><td><span class="pill next">proof of concept</span> passed 2026-10-26; HTTPS, company sign-in and provisioning next</td></tr>
           <tr><td><b>Fleet operator</b></td><td>keeps Mac stations awake, signed in and running</td><td><span class="pill next">lab-tested</span> six checks, two companies kept apart; MDM next</td></tr>
-          <tr><td><b>carafe box</b></td><td>the office's own control plane on a Raspberry Pi 5</td><td><span class="pill next">plan</span> layout drawn, not built</td></tr>
-          <tr><td><b>the engagement</b></td><td>an engineer for setup and workflows; skills packs by industry</td><td><span class="pill next">plan</span> our own two companies first</td></tr>
+          <tr><td><b>carafe box</b></td><td>the office's own control plane on a Raspberry Pi 5, with the network, a battery and the Mac stations, in one bucket</td><td><span class="pill next">prototype in progress</span> designed; the first printed parts are being test-fitted</td></tr>
+          <tr><td><b>the engagement</b></td><td>the contractor job: a visit, a fixed quote, the install, the handover and a monthly plan; skills packs by industry</td><td><span class="pill next">plan</span> our own two companies first</td></tr>
         </tbody>
       </table>
     </div>
@@ -785,7 +929,7 @@ td b { font-weight: 600; }
 
 <div class="deckbar" role="toolbar" aria-label="Slide controls">
   <button type="button" id="prev-btn" aria-label="Previous slide">←</button>
-  <span class="count" id="count" aria-live="polite">1 / 11</span>
+  <span class="count" id="count" aria-live="polite">1 / 15</span>
   <button type="button" id="next-btn" aria-label="Next slide">→</button>
   <button type="button" id="exit-btn">Exit</button>
 </div>

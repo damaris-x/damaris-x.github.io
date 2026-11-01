@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Damaris X</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Agent-ready infrastructure for small companies: an always-on agent for each person, one library of skills for every agent, machines that stay on, and an engineer who sets it up.">
+<meta name="description" content="An AI contractor for small offices: we come and look, quote a fixed job, install one box, hand it over against a checklist and keep it running. Under the hood: an always-on agent for each person, one library of skills, and machines that stay on.">
 <style>
 /* Plain style. One serif column, default links, rules instead of boxes.
    Each <section class="slide"> is a section of the page when scrolling and
@@ -196,6 +196,10 @@ figure.keg img { border: 0; max-height: 15em; width: auto; }
 .presenting #skilldecant figure.keg img { max-height: 250px; }
 .presenting #cellar-door figure.wide img { max-height: 320px; width: auto; }
 #cellar-door .cols p { margin-top: 0; }
+.presenting #top figure.photo img { max-height: 400px; width: auto; }
+@media print { #top figure.photo img { max-height: 400px; width: auto; } }
+#hire ol li, #examples ul li, #solar ul li { margin-bottom: 0.4em; }
+.presenting #solar ul, .presenting #examples ul { font-size: 0.95em; }
 </style>
 <link rel="alternate" type="text/plain" href="/llms.txt" title="Plain-text copy for agents">
 </head>
@@ -203,9 +207,14 @@ figure.keg img { border: 0; max-height: 15em; width: auto; }
 
 <header class="site">
 <p><b><a href="#top">Damaris X</a></b> |
+<a href="#hire">Hiring us</a> |
+<a href="#solar">A real example</a> |
+<a href="#examples">Examples</a> |
+<a href="#monday">A Monday</a> |
+Under the hood:
+<a href="#platform">The kit</a> |
 <a href="#problem">Problem</a> |
 <a href="#engineer">The engineer</a> |
-<a href="#monday">A Monday</a> |
 <a href="#playbook">Playbook</a> |
 <a href="#carafe">carafe</a> |
 <a href="#cellar-door">Cellar door</a> |
@@ -220,14 +229,142 @@ Style: plain, <a href="human/" data-style-switch>human style</a></p>
 
 <main>
 
-<!-- 1 · hero -->
-<section class="slide" id="top" aria-label="Damaris X">
+<!-- 1 · hero: the AI contractor -->
+<section class="slide" id="top" aria-label="Damaris X, your AI contractor">
 <p class="note">A note before you start: this page is for people, but we know you'll hand it to your agent anyway. So it's plain HTML, and there is a plain-text copy at <a href="llms.txt">/llms.txt</a>. Hello, agent.</p>
+<div class="cols">
+<div>
+<p class="over">Damaris X / an AI contractor for small offices</p>
+<h1>We put AI to work in your office, the way a contractor does a job.</h1>
+<p class="lede">You hire us like any contractor. We come and look, quote a fixed price for a set job, install one box, hand it over against a checklist, and keep it running for a monthly fee. After that, AI does the follow-ups, the portal checks and the paperwork, and a person approves anything that leaves the office.</p>
+<p class="hide-deck"><a href="#hire">How hiring us works</a> | <a href="#solar">A real example</a> | <a href="#examples">Other offices</a> | <a href="#platform">Under the hood</a></p>
+<p class="src">[early] Nothing is sold yet, so there are no prices here. The AI jobs already run every day in two small companies we operate.</p>
+</div>
+<figure class="photo">
+<img src="figures/carafe-box-bucket.jpg" width="1400" height="875" alt="Illustration: an orange 5-gallon bucket on an office floor, cut open to show three shelves: a battery at the bottom, a network switch and small boxes in the middle, three Mac minis on their sides at the top, and a fan in the lid. Two cables leave it, power and network.">
+<figcaption>The box we're building: a battery, the office network gear, a small control computer and three Mac minis, in an orange 5-gallon bucket. Two cables in: power and network. [prototype in progress] An AI-made illustration from our CAD model, not a photo.</figcaption>
+</figure>
+</div>
+</section>
+
+<hr>
+
+<!-- 2 · hiring us -->
+<section class="slide dense" id="hire" aria-label="How hiring us works">
+<p class="over">How hiring us works</p>
+<h2>Like any contractor: look, quote, install, hand over, maintain.</h2>
+<div class="cols">
+<ol>
+<li><b>We come and look.</b> A visit to your office: who does what, where the hours go, which jobs could go to AI. You get a short written plan.</li>
+<li><b>You get a fixed quote.</b> A set list of jobs, a price and a date. Want more later? We quote the change before we do it.</li>
+<li><b>We install the box.</b> One box in a corner. It takes two cables, power and network. Each person signs in with their own account; we never hold your passwords.</li>
+<li><b>We hand it over against a checklist.</b> We go through it with you. Anything that fails gets fixed before we call it done.</li>
+<li><b>We keep it running.</b> A monthly plan: we watch it from afar, fix what breaks, keep it up to date and add new jobs as you need them.</li>
+</ol>
+<div>
+<h3>The handover checklist</h3>
+<ul>
+<li>Pull the box's power plug: it keeps running on its battery, and starts again by itself when the power is back.</li>
+<li>Pull the network cable: the jobs pause, and catch up when the line is back.</li>
+<li>Everyone asks the AI something from their own phone and gets an answer.</li>
+<li>Each job in the quote runs on real work, start to finish, with a person approving what goes out.</li>
+<li>When something stops, we get the alert, and you know who to call.</li>
+</ul>
+<p class="src">[plan] The box is a prototype; these are the checks we are building it to pass.</p>
+</div>
+</div>
+</section>
+
+<hr>
+
+<!-- 3 · a real example -->
+<section class="slide tight" id="solar" aria-label="A real example: a solar installer we run">
+<p class="over">A real example [in use today]</p>
+<h2>From the first email to the paperwork, at a solar installer we run.</h2>
+<p class="lede">This one is real. We run a small solar installer that designs systems, buys the materials and installs them. These jobs already run there today.</p>
+<ul>
+<li><b>New leads land on the sales board.</b> Each customer has a card on the sales board. The AI reads the customer mailbox and keeps each card up to date. A forwarded chat message or a note from a phone call can become a lead card too. The AI checks for the same customer first and asks once for missing information.</li>
+<li><b>Contracts get prepared, not sent.</b> It goes through each blank with a person, one question at a time, shows a highlighted preview and makes the PDF for signing. A person sends it.</li>
+<li><b>Signed deals become projects.</b> When a contract is signed in the e-signature service, it marks the sale as won. When a person starts it, the AI assigns a project number and copies a standard set of folders. It moves and checks the sales files, sets up the project board and checklist, and lists the information still missing.</li>
+<li><b>Purchasing follows the deliveries.</b> It reads order, shipping, delivery and invoice emails and keeps the purchasing board current, even when one order arrives in several packages. A vendor's new prices go on the price list as “pending approval”, next to the old ones; only a person approves them.</li>
+<li><b>Government letters become tasks.</b> A letter that needs action becomes a task for the finance team, with the original attached and its deadline as the due date. A letter that only confirms something gets no task.</li>
+<li><b>Receipts become expense forms.</b> From a photo of a receipt it fills in the expense form, asking only how it was paid and which project it belongs to. A person attaches the receipt and presses Submit.</li>
+<li><b>Sales summaries and regular checks.</b> It posts a weekly sales summary and checks the boards every hour for specific problems. Each board has written limits on what the AI may do there.</li>
+</ul>
+<p><b>The AI watches, records, drafts and reminds. People send contracts, approve prices, pay and sign.</b></p>
+</section>
+
+<hr>
+
+<!-- 4 · illustrative examples -->
+<section class="slide tight" id="examples" aria-label="What it does in an office like yours">
+<p class="over">What it does in an office like yours [illustrative]</p>
+<h2>Two more offices, two more sets of jobs.</h2>
+<p class="lede">Examples of work we could quote, not customer stories. Every office gets its own list after the first visit. In both, a person approves anything that leaves the office.</p>
+<div class="cols">
+<div>
+<h3>A real-estate brokerage</h3>
+<ul>
+<li><b>New enquiries get a reply drafted.</b> A buyer writes at 9 pm about a listing. The AI drafts a reply from the listing and the agent's calendar, ready for the agent to approve from the phone.</li>
+<li><b>Showings get scheduled.</b> It suggests times that suit the buyer, the seller and the agent, and prepares the confirmations. The agent checks availability and access before approving them.</li>
+<li><b>Listing descriptions start from your notes.</b> It drafts the description from the agent's notes and photos. The agent checks the facts and reviews it under the brokerage's advertising and fair-housing rules before it goes out.</li>
+<li><b>Deal deadlines stay in view.</b> It keeps each deal's paperwork checklist and deadlines together, and reminds the right person days before something is due.</li>
+<li><b>Monday starts with a summary.</b> New leads, showings, open deals and what is due this week, on one page.</li>
+</ul>
+<p class="small"><b>People give client advice, approve listing descriptions and approve every message that goes out.</b></p>
+</div>
+<div>
+<h3>A small clinic</h3>
+<ul>
+<li><b>Appointment reminders.</b> It prepares reminders and rescheduling messages. Staff approve each message before it goes out.</li>
+<li><b>Insurance details checked before the visit.</b> It checks insurance details on the portals the clinic already uses and flags missing or unclear information. Staff confirm what the visit needs.</li>
+<li><b>Intake forms followed up.</b> It prepares the forms and the reminders for missing ones, and lays out the answers for staff.</li>
+<li><b>Prior authorization requests drafted.</b> It fills in draft requests from information the clinic supplies. Staff check the details, add the clinical justification and submit.</li>
+<li><b>Common questions answered from your policies.</b> Hours, parking, what to bring, how to pay: drafted from the clinic's own policies, for staff to approve.</li>
+</ul>
+<p class="small"><b>Patient information handled with care.</b> Patient privacy rules (HIPAA) affect which jobs we can offer. Before we quote, we review with the clinic and its advisers which services would handle patient information and what agreements are needed, and we say up front which jobs we can't do within those limits. We make no compliance or certification claim.</p>
+<p class="small"><b>Staff approve every patient message, submit the paperwork and make the care decisions.</b></p>
+</div>
+</div>
+</section>
+
+
+<hr>
+
+<!-- 4 · a Monday -->
+<section class="slide" id="monday" aria-label="A Monday with agents">
+<p class="over">What changes for the team [illustrative]</p>
+<h2>A Monday at a ten-person company, with an agent each.</h2>
+<p class="lede">Nobody learns a new tool. Each person talks to their own agent from the phone, the agent works in the company's systems with the company's skills, and a person approves anything that leaves the building.</p>
+<div class="cols c3">
+<div>
+<p class="over">The books</p>
+<h3>"Which invoices are overdue?"</h3>
+<p>The person who chases payments asks from the train. The agent reads the books, drafts the reminders and posts them for approval. One tap, and it sends them and records what it did.</p>
+</div>
+<div>
+<p class="over">The portals</p>
+<h3>"Anything new on our permits?"</h3>
+<p>The agent checks the government portal in a real browser each morning, updates the job's card on the team's board, and flags what needs a person.</p>
+</div>
+<div>
+<p class="over">A new hire</p>
+<h3>"How do we do this here?"</h3>
+<p>Instead of interrupting a busy colleague, the new person asks the agent, which answers from the same skills everyone else uses. The floor rises for everyone.</p>
+</div>
+</div>
+</section>
+
+<hr>
+
+<!-- 5 · under the hood -->
+<section class="slide" id="platform" aria-label="Under the hood">
 <div class="cols wl">
 <div>
-<p class="over">Damaris X / agent-ready infrastructure for small companies</p>
-<h1>What the best AI teams build for themselves, installed in a ten-person company.</h1>
+<p class="over">Under the hood / for technical readers and investors</p>
+<h2>What the best AI teams build for themselves, installed in a ten-person company.</h2>
 <p class="lede">An always-on agent for each person, one library of skills that every agent shares, and the machines kept running, set up by an engineer who then works on your workflows. The most AI-native teams build this with their own platform engineers. A ten-person company has none, so we bring it.</p>
+<p class="small">Investors know this work as forward-deployed engineering (FDE). To an office, we are its AI contractor.</p>
 <p class="hide-deck"><a href="#engineer">How it works</a> | <a href="#status">Where it stands</a></p>
 <p class="src">[in daily use] The skills already run every day in two small companies we operate. [early] carafe is a proof of concept, the Fleet operator is lab-tested, and the box is a plan.</p>
 </div>
@@ -262,7 +399,7 @@ a Mac station per security boundary
 <section class="slide" id="problem" aria-label="The problem">
 <p class="over">The problem</p>
 <h2>Big companies get an engineer on site. Small companies can't pay for one.</h2>
-<p class="lede">AI labs send engineers to their big customers, to sit with a team until the agents do real work. That is how agents earn their keep. At ten people, nobody pays for that.</p>
+<p class="lede">AI labs send engineers to their big customers, forward-deployed engineers (FDEs), to sit with a team until the agents do real work. That is how agents earn their keep. At ten people, nobody pays for that.</p>
 <div class="cols c3">
 <div>
 <p class="over">The work is specific</p>
@@ -307,32 +444,6 @@ a Mac station per security boundary
 </div>
 </div>
 <p class="src">The box, the engagement and the subscription are the plan, not yet sold. No prices yet.</p>
-</section>
-
-<hr>
-
-<!-- 4 · a Monday -->
-<section class="slide" id="monday" aria-label="A Monday with agents">
-<p class="over">What changes for the team [illustrative]</p>
-<h2>A Monday at a ten-person company, with an agent each.</h2>
-<p class="lede">Nobody learns a new tool. Each person talks to their own agent from the phone, the agent works in the company's systems with the company's skills, and a person approves anything that leaves the building.</p>
-<div class="cols c3">
-<div>
-<p class="over">The books</p>
-<h3>"Which invoices are overdue?"</h3>
-<p>The person who chases payments asks from the train. The agent reads the books, drafts the reminders and posts them for approval. One tap, and it sends them and records what it did.</p>
-</div>
-<div>
-<p class="over">The portals</p>
-<h3>"Anything new on our permits?"</h3>
-<p>The agent checks the government portal in a real browser each morning, updates the job's card on the team's board, and flags what needs a person.</p>
-</div>
-<div>
-<p class="over">A new hire</p>
-<h3>"How do we do this here?"</h3>
-<p>Instead of interrupting a busy colleague, the new person asks the agent, which answers from the same skills everyone else uses. The floor rises for everyone.</p>
-</div>
-</div>
 </section>
 
 <hr>
@@ -450,7 +561,7 @@ Hermes         link + one config entry
 <dt><code>a Mac per boundary</code> — as many as needed</dt>
 <dd>Front desk, finance, back office, audit and the owner each get their own Mac, sign-ins and keys, so one role's agent is kept away from another's files and accounts. The operator keeps every one running.</dd>
 <dt><code>remote hands</code> — planned</dt>
-<dd>A 5G backup line, a battery and a KVM, added where a real failure calls for them.</dd>
+<dd>A battery and a KVM for each Mac are in the box design; a 5G backup line is added where a real failure calls for it.</dd>
 </dl>
 </div>
 </section>
@@ -469,8 +580,8 @@ Hermes         link + one config entry
 <tr><td><b>skilldecant</b></td><td>installs skills once and links them into every agent</td><td>[v0.10.0] on our own machines</td></tr>
 <tr><td><b>carafe</b></td><td>an always-on agent per person, from the phone</td><td>[proof of concept] passed 2026-10-26; HTTPS, company sign-in and provisioning next</td></tr>
 <tr><td><b>Fleet operator</b></td><td>keeps Mac stations awake, signed in and running</td><td>[lab-tested] six checks, two companies kept apart; MDM next</td></tr>
-<tr><td><b>carafe box</b></td><td>the office's own control plane on a Raspberry Pi 5</td><td>[plan] layout drawn, not built</td></tr>
-<tr><td><b>the engagement</b></td><td>an engineer for setup and workflows; skills packs by industry</td><td>[plan] our own two companies first</td></tr>
+<tr><td><b>carafe box</b></td><td>the office's own control plane on a Raspberry Pi 5, with the network, a battery and the Mac stations, in one bucket</td><td>[prototype in progress] designed; the first printed parts are being test-fitted</td></tr>
+<tr><td><b>the engagement</b></td><td>the contractor job: a visit, a fixed quote, the install, the handover and a monthly plan; skills packs by industry</td><td>[plan] our own two companies first</td></tr>
 </tbody>
 </table>
 </div>
@@ -510,7 +621,7 @@ Hermes         link + one config entry
 
 <div class="deckbar" role="toolbar" aria-label="Slide controls">
   <button type="button" id="prev-btn" aria-label="Previous slide">←</button>
-  <span class="count" id="count" aria-live="polite">1 / 11</span>
+  <span class="count" id="count" aria-live="polite">1 / 15</span>
   <button type="button" id="next-btn" aria-label="Next slide">→</button>
   <button type="button" id="exit-btn">Exit</button>
 </div>

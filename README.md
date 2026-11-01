@@ -1,10 +1,11 @@
 # Damaris X: the site
 
-The public site for Damaris X, agent-ready infrastructure for small companies: carafe, skilldecant, the Fleet
-operator and the carafe box, and how an engineer sets them up.
+The public site for Damaris X, an AI contractor for small offices. The home page opens in plain words for the office
+(how hiring us works, a real example, two illustrative offices), then goes under the hood for technical readers and
+investors: carafe, skilldecant, the Fleet operator and the carafe box, and how an engineer sets them up.
 
 - **Live:** https://damaris-x.ai/ (custom domain, set in the repository's Pages settings; https://damaris-x.github.io/ redirects there)
-- **The home page** is one HTML file that is also an 11-slide deck: press **P** or **Present**; ← → to move, Esc to
+- **The home page** is one HTML file that is also a 15-slide deck: press **P** or **Present**; ← → to move, Esc to
   leave. Opening `…/#present` starts in the deck. ⌘P prints one slide per page (16:9).
 - **`fleet-operator/`** is the full Fleet operator page and deck, moved here from
   `damaris-x/carafe-fleet-operator`, whose old address now forwards here.

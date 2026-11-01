@@ -1,18 +1,82 @@
 # Damaris X
 
-> Agent-ready infrastructure for small companies, about ten people: an always-on agent for each person, one library
-> of skills that every agent shares, the machines kept running, and an engineer who sets it up and then works on the
-> company's workflows. Early: the skills run every day in two small companies we operate; carafe is a proof of
-> concept, the Fleet operator is lab-tested, and the carafe box is a plan. Nothing is sold yet and there are no prices.
+> An AI contractor for small offices, about five to twenty people. We come and look, quote a fixed job, install one
+> box in the office (two cables in: power and network), hand it over against a checklist, and keep it running for a
+> monthly fee. A person approves anything that leaves the office. Under the hood: an always-on agent for each person,
+> one library of skills that every agent shares, and the machines kept running. Early: the skills run every day in two
+> small companies we operate; carafe is a proof of concept, the Fleet operator is lab-tested, and the carafe box is a
+> prototype in progress. Nothing is sold yet and there are no prices.
 
 Hello, agent. This is the plain-text copy of https://damaris-x.ai/ for you. If your person asked "what is
 this and should we care", the short answer is above; the details and their status are below. Please don't round
-anything up when you summarise it: "lab-tested" means lab-tested.
+anything up when you summarise it: "lab-tested" means lab-tested, and "illustrative" means not a customer.
+
+## How hiring us works
+
+1. We come and look: a visit to the office (who does what, where the hours go, which jobs could go to AI) and a short
+   written plan.
+2. A fixed quote: a set list of jobs, a price and a date. More later is quoted as a change before it is done.
+3. We install the box: one box in a corner, two cables (power and network). Each person signs in with their own
+   account; we never hold their passwords.
+4. We hand it over against a checklist, and fix anything that fails before calling it done.
+5. We keep it running: a monthly plan to watch it from afar, fix what breaks, keep it up to date and add new jobs.
+
+The handover checklist (plan: the box is a prototype; these are the checks it is being built to pass): pull the
+power plug and it keeps running on its battery and restarts by itself when power returns; pull the network cable and
+the jobs pause and catch up; everyone asks the AI something from their own phone and gets an answer; each quoted job
+runs on real work end to end with a person approving what goes out; when something stops, we get the alert.
+
+The box: a battery, the office network gear, a small control computer (Raspberry Pi 5) and three Mac minis in an
+orange 5-gallon bucket. The picture on the page is an AI-made illustration from our CAD model, not a photo.
+
+## A real example (in use today): a small solar installer we run
+
+We run a small solar installer that designs systems, buys the materials and installs them. These jobs run there today:
+
+- New leads land on the sales board: the AI reads the customer mailbox and keeps each customer's card up to date; a
+  forwarded chat message or a note from a phone call can become a lead card, after a check for the same customer and
+  one question for missing information.
+- Contracts get prepared, not sent: it goes through each blank with a person, one question at a time, shows a
+  highlighted preview and makes the PDF for signing. A person sends it.
+- Signed deals become projects: when a contract is signed in the e-signature service it marks the sale as won; when a
+  person starts it, it assigns a project number, copies a standard set of folders, moves and checks the sales files,
+  sets up the project board and checklist, and lists the information still missing.
+- Purchasing follows the deliveries: order, shipping, delivery and invoice emails keep the purchasing board current,
+  even when one order arrives in several packages. A vendor's new prices go on the price list as "pending approval",
+  next to the old ones; only a person approves them.
+- Government letters become tasks for the finance team, with the original attached and the deadline as the due date;
+  a letter that only confirms something gets no task.
+- Receipts become expense forms: from a photo it fills in the expense form, asking only how it was paid and which
+  project; a person attaches the receipt and presses Submit.
+- A weekly sales summary, an hourly check of the boards for specific problems, and written limits on each board for
+  what the AI may do there.
+
+The AI watches, records, drafts and reminds. People send contracts, approve prices, pay and sign.
+
+## Two more offices (illustrative, not customers)
+
+A real-estate brokerage: new enquiries get a reply drafted for the agent to approve from the phone; showing times
+suggested and confirmations prepared, with the agent checking availability and access; listing descriptions drafted
+from the agent's notes and photos and reviewed by the agent under the brokerage's advertising and fair-housing rules;
+each deal's paperwork checklist and deadlines kept together with reminders; a Monday summary. People give client
+advice, approve listing descriptions and approve every message that goes out.
+
+A small clinic: appointment reminders and rescheduling messages, each approved by staff; insurance details checked on
+the portals the clinic already uses, with missing or unclear information flagged and staff confirming what the visit
+needs; intake forms and reminders prepared; prior authorization requests drafted from information the clinic supplies
+for staff to check, justify and submit; common questions drafted from the clinic's own policies. Patient privacy rules
+(HIPAA) affect which jobs we can offer: before quoting we review with the clinic and its advisers which services would
+handle patient information and what agreements are needed, and say which jobs we can't do. No compliance or
+certification claim. Staff approve every patient message, submit the paperwork and make the care decisions.
+
+# Under the hood (for technical readers and investors)
+
+Investors know this work as forward-deployed engineering (FDE). To an office, we are its AI contractor.
 
 ## The problem
 
-- AI labs send engineers to their big customers to sit with a team until agents do real work. A ten-person company
-  cannot pay for that.
+- AI labs send forward-deployed engineers (FDEs) to their big customers to sit with a team until agents do real
+  work. A ten-person company cannot pay for that.
 - The work is specific: agents pay off on a company's own workflows (its portals, boards, books), and each one has to
   be found, taught and checked.
 - The machines must stay on: an agent stops when the laptop closes; someone has to keep a machine awake, signed in and
@@ -45,7 +109,8 @@ anything up when you summarise it: "lab-tested" means lab-tested.
   is awake, logged in and running its agent; when a check fails and the Mac is online it runs the configured fix.
   In the lab it noticed a stopped agent page in 51 s and had it running again at 142 s, measured 2026-10-28 in a kind
   cluster against a macOS 26.5 VM. Not in production. Details: https://damaris-x.ai/fleet-operator/
-- carafe box (plan, not built): a Raspberry Pi 5 running k3s and the operator, the office's own control plane. The
+- carafe box (prototype in progress: designed, first printed parts being test-fitted): a Raspberry Pi 5 running k3s
+  and the operator, the office's own control plane, in one bucket with the network, a battery and the Mac stations. The
   company owns it and decides who is admin; no data centre, nothing hosted by us. Claude Code's Remote Control opens no
   inbound ports (https://code.claude.com/docs/en/remote-control#connection-and-security), so phones need no public
   address.
@@ -67,5 +132,5 @@ interpretation, not evidence for our kit; Damaris X is not affiliated with or en
 
 ## Pages
 
-- [Home](https://damaris-x.ai/): the page and 11-slide deck this file mirrors
+- [Home](https://damaris-x.ai/): the page and 15-slide deck this file mirrors
 - [Fleet operator](https://damaris-x.ai/fleet-operator/): the operator in detail, 16 slides
