@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Damaris X 博客</title>
+<meta name="description" content="三篇文章：carafe、skilldecant、找缝补缝守缝。">
+<style>
+/* Plain style, as on the home page: one serif column, default links, rules instead of boxes. */
+:root {
+  --bg: #FFFFFF; --fg: #000000; --muted: #444444; --rule: #888888;
+  --link: #0000EE; --visited: #551A8B;
+  --serif: Georgia, "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "Times New Roman", serif;
+  --mono: Menlo, Consolas, "DejaVu Sans Mono", "Courier New", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111111; --fg: #E6E6E6; --muted: #AAAAAA; --rule: #666666;
+    --link: #8AB4F8; --visited: #C58AF9; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111111; --fg: #E6E6E6; --muted: #AAAAAA; --rule: #666666;
+  --link: #8AB4F8; --visited: #C58AF9; color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 17px/1.75 var(--serif); }
+header.site, main, footer.site {
+  max-width: 40em; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+header.site { padding-top: 12px; }
+header.site p { margin: 0 0 4px; }
+footer.site { padding-bottom: 32px; color: var(--muted); font-size: 0.9em; }
+a:link { color: var(--link); }
+a:visited { color: var(--visited); }
+h1 { font-size: 1.7em; line-height: 1.35; margin: 0.6em 0 0.3em; }
+h2 { font-size: 1.25em; line-height: 1.4; margin: 1.8em 0 0.5em; }
+p, ul, ol { margin: 0 0 0.9em; }
+ul, ol { padding-left: 1.6em; }
+li { margin: 0 0 0.35em; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 1.5em 0; }
+.date { color: var(--muted); font-size: 0.9em; margin: 0 0 1.2em; }
+code, pre { font-family: var(--mono); font-size: 0.86em; }
+pre { margin: 0 0 0.9em; overflow-x: auto; font-size: 13px; line-height: 1.45; white-space: pre; }
+.wrap { overflow-x: auto; margin: 0 0 0.9em; }
+table { border-collapse: collapse; font-size: 0.9em; }
+th, td { border: 1px solid var(--rule); padding: 4px 8px; text-align: left; vertical-align: top; }
+blockquote { margin: 0 0 0.9em; padding-left: 1em; border-left: 1px solid var(--rule); color: var(--muted); font-size: 0.9em; }
+</style>
+</head>
+<body>
+<header class="site"><p>Damaris X · 博客</p><hr></header>
+<main>
+<h1>博客</h1>
+<ol>
+<li><a href="carafe/">让每个人的 AI 一直在干活：给小公司的 agent 基础设施 Damaris Cellar</a><br>每个人一个一直在线的 AI：容器版和 Mac 版 carafe，加上管着它们的 Cellar。</li>
+<li><a href="skilldecant/">一桶技能，倒进每一个 AI：skilldecant</a><br>一份技能正本，用符号链接倒进 Claude Code、Codex、OpenClaw 和 Hermes。</li>
+<li><a href="gap-method/">找缝、补缝、守缝：小公司用 AI 的一套施工方法</a><br>小公司用 AI 的一套施工方法：找到信息断开的地方，补上，再一直守着。</li>
+</ol>
+
+</main>
+<footer class="site"><hr><p>Damaris X</p></footer>
+</body>
+</html>
