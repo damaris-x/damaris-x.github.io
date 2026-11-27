@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>一桶技能，倒进每一个 AI：skilldecant</title>
+<meta name="description" content="一份技能正本，用符号链接倒进 Claude Code、Codex、OpenClaw 和 Hermes。">
+<style>
+/* Plain style, as on the home page: one serif column, default links, rules instead of boxes. */
+:root {
+  --bg: #FFFFFF; --fg: #000000; --muted: #444444; --rule: #888888;
+  --link: #0000EE; --visited: #551A8B;
+  --serif: Georgia, "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "Times New Roman", serif;
+  --mono: Menlo, Consolas, "DejaVu Sans Mono", "Courier New", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111111; --fg: #E6E6E6; --muted: #AAAAAA; --rule: #666666;
+    --link: #8AB4F8; --visited: #C58AF9; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111111; --fg: #E6E6E6; --muted: #AAAAAA; --rule: #666666;
+  --link: #8AB4F8; --visited: #C58AF9; color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 17px/1.75 var(--serif); }
+header.site, main, footer.site {
+  max-width: 40em; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+header.site { padding-top: 12px; }
+header.site p { margin: 0 0 4px; }
+footer.site { padding-bottom: 32px; color: var(--muted); font-size: 0.9em; }
+a:link { color: var(--link); }
+a:visited { color: var(--visited); }
+h1 { font-size: 1.7em; line-height: 1.35; margin: 0.6em 0 0.3em; }
+h2 { font-size: 1.25em; line-height: 1.4; margin: 1.8em 0 0.5em; }
+p, ul, ol { margin: 0 0 0.9em; }
+ul, ol { padding-left: 1.6em; }
+li { margin: 0 0 0.35em; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 1.5em 0; }
+.date { color: var(--muted); font-size: 0.9em; margin: 0 0 1.2em; }
+code, pre { font-family: var(--mono); font-size: 0.86em; }
+pre { margin: 0 0 0.9em; overflow-x: auto; font-size: 13px; line-height: 1.45; white-space: pre; }
+.wrap { overflow-x: auto; margin: 0 0 0.9em; }
+table { border-collapse: collapse; font-size: 0.9em; }
+th, td { border: 1px solid var(--rule); padding: 4px 8px; text-align: left; vertical-align: top; }
+blockquote { margin: 0 0 0.9em; padding-left: 1em; border-left: 1px solid var(--rule); color: var(--muted); font-size: 0.9em; }
+</style>
+</head>
+<body>
+<header class="site"><p><a href="../">博客</a></p><hr></header>
+<main>
+<h1>一桶技能，倒进每一个 AI：skilldecant</h1>
+<p class="date">2026-11-27</p>
+<p>用 AI 干活，人人都成了酿酒师。一套催发票的流程、一张合同审阅清单、一句让 AI 别再犯那个错的提醒，我们把这些本事酿成<strong>技能</strong>（skill），一边用一边改，直到味道对了。一个技能就是一个 <code>SKILL.md</code> 加上它用到的脚本。</p>
+<p>麻烦在于，同一个技能，你得在好几个 AI 里各放一份。Claude Code 一份，Codex 一份，OpenClaw 再一份。改一处，要记得改所有地方；哪个 AI 升级了，又得把每一份都查一遍。几份拷贝慢慢就对不上了。</p>
+<p>skilldecant 解决的就是这件事：<strong>一份正本放在桶里，默认用符号链接倒进每一个 AI，不做拷贝，不会漂移；桶里的版本升级了，各个 AI 在下一次会话或扫描时就读到新版。</strong> 它现在是 0.10.0 版，在我们自己两家公司的运营里一直在用。</p>
+<h2 id="01-技能和记忆ai-带走的两样东西">01　技能和记忆：AI 带走的两样东西</h2>
+<p>最近不少团队在做 AI 的「记忆」：让模型或者一个记忆服务记住用户说过什么、偏好什么、上次做到哪。记忆回答的是「AI 记得什么」。</p>
+<p>技能回答的是另一件事：「AI 会做什么、按什么规矩做」。比如报销：收据照片怎么读、表单哪些字段由 AI 预填、哪一步必须由本人提交、出了错跑哪条命令。这些是公司的做法，要有人写、有人审、有版本、能回滚，换一个 AI 也该是同一套。</p>
+<p>所以我们把技能当成软件来管：放在 git 仓库里，打版本，发布，安装，升级。skilldecant 就是这条链路的最后一段。</p>
+<h2 id="02-一份正本几种-ai">02　一份正本，几种 AI</h2>
+<pre><code>git 仓库  ──brew install──▶  Homebrew 的桶（keg）  ──skilldecant link──▶  每一个 AI
+（正本在这里）               （装好的唯一一份）                       （只放符号链接）</code></pre>
+<p>它借用的是 Homebrew 现成的那一套：版本、升级、校验、经 SSH 访问的私有 tap。一组技能（我们叫<strong>技能集合</strong>）就是一个 Homebrew 配方，装好就是桶里的一份；<code>brew upgrade</code> 换了桶里的版本，指向它的链接自动跟着走。名字也都是酒窖里的：formula（配方）、keg（桶）、Homebrew 的 Cellar（酒窖）、tap（龙头）、pour（倒）。decant 的意思，就是把酒倒进要喝它的杯子里，而不多酿一桶。</p>
+<p>每种 AI 读技能的方式不一样，skilldecant 知道每一家的脾气，每种 AI 最多只改一处配置：</p>
+<div class="wrap"><table>
+<thead>
+<tr>
+<th>AI</th>
+<th>从哪里读技能</th>
+<th>skilldecant 改什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenClaw</strong></td>
+<td>工作区的 <code>skills/</code></td>
+<td><code>openclaw.json</code> 里加一项允许的链接目标</td>
+</tr>
+<tr>
+<td><strong>Hermes</strong></td>
+<td>配置目录外面的一个暂存目录（这样不会弄坏它的回滚）</td>
+<td><code>skills.external_dirs</code> 加一项</td>
+</tr>
+<tr>
+<td><strong>Claude Code</strong></td>
+<td><code>~/.claude/skills/</code></td>
+<td>什么都不用改，原生支持符号链接</td>
+</tr>
+<tr>
+<td><strong>Codex</strong></td>
+<td><code>~/.codex/skills/</code></td>
+<td>什么都不用改；<strong>默认关着</strong>，要在本机配置里打开</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>skilldecant unlink</code> 能把它改过的那一处配置原样还回去，一个字节都不差。每个技能也可以自己选给哪些 AI 用，比如一份运维手册只给写代码的 AI。</p>
+<h2 id="03-一个例子报销技能从写好到用上">03　一个例子：报销技能从写好到用上</h2>
+<p>假设你写了一个报销技能：读一张收据照片，给出一个预填好的报销表单链接，本人检查后自己提交。</p>
+<p><strong>第一步，起一个技能集合。</strong></p>
+<pre><code>$ skilldecant new collection finance-skills
+$ cd finance-skills
+$ skilldecant new skill expense</code></pre>
+<p>生成的东西有 <code>collection.yaml</code>、版本号、CHANGELOG、一个示例技能。技能的模板里自带两样我们吃过亏才加上的东西：一个 <code>doctor</code> 子命令，最后一行只会是 <code>Result: healthy</code> 或 <code>Result: BROKEN</code>；一段「失败时」的固定分支：跑 doctor，把失败的命令和 doctor 的输出都原样报告，说明这条链路需要人维护，然后停下，不许 AI 自己乱修。</p>
+<p><strong>第二步，边改边试。</strong></p>
+<pre><code>$ skilldecant link expense --from .   # 让已启用的 AI 直接读你的工作目录，改了马上生效
+……开一个新的 Claude Code 会话试（Codex 要先在本机配置里打开）……
+$ skilldecant link expense --restore   # 试完了，撤掉开发链接（装好以后就是换回桶里的版本）</code></pre>
+<p>开发链接开着的时候，<code>skilldecant doctor</code> 一直会警告，免得它在 <code>brew upgrade</code> 之后还悄悄留着。</p>
+<p><strong>第三步，分享之前先检查。</strong></p>
+<pre><code>$ skilldecant lint</code></pre>
+<p>它检查技能写得对不对，也检查要发出去的每个文件里有没有不该带出门的东西：匹配已知规则的密钥（一律算失败）、家目录路径、邮箱地址、电话号码、本机的 profile 和 agent 名，还有你自己列出的客户名。在 <code>collection.yaml</code> 里写上 <code>lint: {shared: true}</code>，这些就从警告变成失败。它找的是失手，不是存心隐藏，所以共享之前还要有人看一遍内容和 Git 历史。我们要拿出去共享的集合，先过这一关。</p>
+<p><strong>第四步，打版本、发布、安装。</strong> 先把集合放进一个 Git 仓库，推到远端，再打一个和 VERSION 一致的标签。</p>
+<pre><code>$ git tag v0.1.0 &amp;&amp; git push origin main v0.1.0
+$ skilldecant new tap . --tag v0.1.0   # 生成钉在这个版本上的配方，写到 ../homebrew-finance-skills，再推到它自己的远端仓库
+# 在每台机器上：
+$ brew tap &lt;owner&gt;/finance-skills git@github.com:&lt;owner&gt;/homebrew-finance-skills.git
+$ brew trust &lt;owner&gt;/finance-skills
+$ brew install finance-skills
+$ skilldecant link
+$ skilldecant doctor</code></pre>
+<p>之后再改，就是在仓库里改、打新版本、更新 tap 里的配方，各台机器 <code>brew upgrade</code> 以后，用桶链接的 AI 在下一次会话或扫描时就读到新版；开发链接读的仍是工作目录，拷贝方式要再跑一次 <code>skilldecant link</code> 同步，有冲突由人合并。</p>
+<h2 id="04-谁负责让它保持最新">04　谁负责让它保持最新</h2>
+<p>「一份正本、不会漂移」是默认的方式。另外两种方式，把「保持最新」的责任挪到了别处，所以要写清楚：</p>
+<div class="wrap"><table>
+<thead>
+<tr>
+<th>方式</th>
+<th>AI 读的是什么</th>
+<th>谁来更新</th>
+<th>会不会漂移</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>桶链接</strong>（默认）</td>
+<td>桶里的那一份</td>
+<td>只有 <code>brew upgrade</code></td>
+<td>不会，只有一份</td>
+</tr>
+<tr>
+<td><strong>开发链接</strong></td>
+<td>你的工作目录</td>
+<td>你的编辑器，实时</td>
+<td>直到 <code>--restore</code>；期间 <code>doctor</code> 一直警告</td>
+</tr>
+<tr>
+<td><strong>拷贝</strong>（给 Hermes 的自我改进用）</td>
+<td>它配置目录里的一份真拷贝</td>
+<td><code>link</code> 按共同基线逐个文件同步；Hermes 的 curator 自己改</td>
+<td>curator 改了还没收回来时会领先；同一个文件两边改得不一样，才标成「分叉」，由人合并</td>
+</tr>
+</tbody>
+</table></div>
+<p>第三种是给会自己改技能的 AI 准备的。Hermes 的 curator 能根据使用情况改进技能，但它改不了符号链接后面的东西，所以给它一份真拷贝。它改好的部分，用 <code>skilldecant pull</code> 收回到技能集合的仓库里，经人审过再发布。没收回来的改动，<code>unlink</code> 默认不删。</p>
+<h2 id="05-我们自己怎么用">05　我们自己怎么用</h2>
+<p>skilldecant 是 2026 年 7 月从我们的运营技能仓库里拆出来的，现在一台运营用的 Mac 上装着 6 个技能集合，列出 69 个技能，链接到 Claude Code、OpenClaw 和 Hermes（这台机器上 Codex 还没打开）。这些技能管着两家公司的日常：读邮件建销售卡片、收据照片变报销表单、合同签完自动结单、看板维护、记账核对。</p>
+<p>几条我们一路摸出来的规矩（前两条写进了技能作者指南）：</p>
+<ul>
+<li><strong>技能是一份操作手册，不是一篇文章。</strong> 写清楚每条命令打印什么，最后写「边界」：这个技能不做什么、哪个技能做、什么绝对不能做。</li>
+<li><strong>失败时只有一条路。</strong> 出错就跑 doctor、原样报告、停下。不让 AI 自由发挥去调试。</li>
+<li><strong>规矩要落到权限上。</strong> 技能里写「不许批准价格」，但它用的令牌其实能批，这就只是一条还没执行的规定。</li>
+<li><strong>改技能要有对照。</strong> 我们用另一家厂商的模型来审技能，每一条意见都按复算命令逐条核实；优化时一次只改一处，让评委在不知道哪份是新版的情况下比较新旧，变差就退回。</li>
+</ul>
+<p>skilldecant 本身有 400 个测试函数，跑在一个完全隔离的沙盒里；对 OpenClaw、Hermes、Codex 的支持，都是在装好的具体版本上实测过再写进去的。</p>
+<h2 id="06-边界">06　边界</h2>
+<ul>
+<li><strong>参考平台是 macOS 加 Homebrew。</strong> Linux 上的 Homebrew 也能用。没有 Homebrew 时，可以用环境变量直接指定技能目录，但那样就没人替你安装、升级或锁定版本了。</li>
+<li><strong>只支持这四种 AI。</strong> 新加一种，前提是某台真机器上有个真任务需要它，而且要在装好的那个版本上验证过。Codex 就是这样加进来的。</li>
+<li><strong>它不写技能，只负责倒。</strong> 技能写得好不好，靠作者、靠审、靠测。skilldecant 倒出去的，就是你写的那一份，一字不改。</li>
+<li><strong>我们的技能集合放在私有的 tap 里。</strong> 工具本身是通用的，不带任何一家公司的东西。</li>
+</ul>
+<h2 id="07-更多了解">07　更多了解</h2>
+<p>skilldecant 不是开源软件。它用 PolyForm 非商业许可（PolyForm Noncommercial 1.0.0）：个人使用、和朋友分享、学习研究、非营利组织，都可以免费用。在公司内部用、给客户用、或者在驻场部署 AI 的工作里用，需要程诚签发的商业许可。skilldecant 写进你仓库里的文件归你。代码仓库目前不公开。</p>
+<p>想试用、想拿许可，或者想聊聊你们公司的技能怎么管，写信给 <a href="mailto:ccheng@ccheng.us">ccheng@ccheng.us</a></p>
+<blockquote>
+<p>Homebrew、Claude、Codex、OpenClaw、Hermes 等名称归各自所有者。skilldecant 与它们都没有隶属关系。</p>
+</blockquote>
+
+</main>
+<footer class="site"><hr><p>Damaris X</p></footer>
+</body>
+</html>

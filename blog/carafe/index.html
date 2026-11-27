@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>让每个人的 AI 一直在干活：给小公司的 agent 基础设施 Damaris Cellar</title>
+<meta name="description" content="每个人一个一直在线的 AI：容器版和 Mac 版 carafe，加上管着它们的 Cellar。">
+<style>
+/* Plain style, as on the home page: one serif column, default links, rules instead of boxes. */
+:root {
+  --bg: #FFFFFF; --fg: #000000; --muted: #444444; --rule: #888888;
+  --link: #0000EE; --visited: #551A8B;
+  --serif: Georgia, "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "Times New Roman", serif;
+  --mono: Menlo, Consolas, "DejaVu Sans Mono", "Courier New", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111111; --fg: #E6E6E6; --muted: #AAAAAA; --rule: #666666;
+    --link: #8AB4F8; --visited: #C58AF9; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111111; --fg: #E6E6E6; --muted: #AAAAAA; --rule: #666666;
+  --link: #8AB4F8; --visited: #C58AF9; color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 17px/1.75 var(--serif); }
+header.site, main, footer.site {
+  max-width: 40em; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+header.site { padding-top: 12px; }
+header.site p { margin: 0 0 4px; }
+footer.site { padding-bottom: 32px; color: var(--muted); font-size: 0.9em; }
+a:link { color: var(--link); }
+a:visited { color: var(--visited); }
+h1 { font-size: 1.7em; line-height: 1.35; margin: 0.6em 0 0.3em; }
+h2 { font-size: 1.25em; line-height: 1.4; margin: 1.8em 0 0.5em; }
+p, ul, ol { margin: 0 0 0.9em; }
+ul, ol { padding-left: 1.6em; }
+li { margin: 0 0 0.35em; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 1.5em 0; }
+.date { color: var(--muted); font-size: 0.9em; margin: 0 0 1.2em; }
+code, pre { font-family: var(--mono); font-size: 0.86em; }
+pre { margin: 0 0 0.9em; overflow-x: auto; font-size: 13px; line-height: 1.45; white-space: pre; }
+.wrap { overflow-x: auto; margin: 0 0 0.9em; }
+table { border-collapse: collapse; font-size: 0.9em; }
+th, td { border: 1px solid var(--rule); padding: 4px 8px; text-align: left; vertical-align: top; }
+blockquote { margin: 0 0 0.9em; padding-left: 1em; border-left: 1px solid var(--rule); color: var(--muted); font-size: 0.9em; }
+</style>
+</head>
+<body>
+<header class="site"><p><a href="../">博客</a></p><hr></header>
+<main>
+<h1>让每个人的 AI 一直在干活：给小公司的 agent 基础设施 Damaris Cellar</h1>
+<p class="date">2026-11-27</p>
+<p>Damaris Cellar 给公司里每个人配一个一直在线的 AI。人合上笔记本、下班回家，AI 照样在干活，人在手机上就能接着跟它说话。AI 干活的地方，我们叫 carafe，每人一个，我们装好，我们照看。carafe 有两种：只在终端里干活的 AI，用容器版 carafe，就是一个容器；要用浏览器、要带着本人登录状态干活的 AI，用 Mac 版 carafe，就是一台专用的 Mac mini，或者一台 macOS 虚拟机，桌面一直登录着。管着这些 Mac 的，是一个很小的 Kubernetes 集群，我们叫它 <strong>Cellar</strong>（酒窖），放在我们装进客户办公室的盒子里，或者放在我们的数据中心。</p>
+<p>先说清楚现状：这套东西在实验室里测过，容器版也在一台办公室的 Mac mini 上用测试身份跑过，另外，从 11 月起，一家公司的 Cellar 已经在管一位同事的自用 Mac，这台 Mac 还在交接，同事还没开始用。还没有人日常用上 carafe，也没有在客户那里上线。下文的实测数字，都是跑一次、一台 Mac 的结果，不是性能指标，也不是服务承诺；成本数字是估算，用到的假设写在表的上下。</p>
+<h2 id="01-ai-停下来往往是因为电脑停了">01　AI 停下来，往往是因为电脑停了</h2>
+<p>Claude Code、Codex 这类 AI 现在一跑就是几个小时，不用人盯着。可它跑在笔记本上，盖子一合就停了。很多活还要用真的浏览器，以本人的身份登录各种网站，这就需要一个一直登录着的桌面。</p>
+<p>于是就有了一串很普通的故障：</p>
+<ul>
+<li>系统更新后自动重启，开了 FileVault（磁盘加密）的 Mac 停在解锁界面或登录界面；</li>
+<li>屏幕锁了；</li>
+<li>系统更新后弹出「设置助理」，等人去点；</li>
+<li>AI 用的本地网页停了，或者 Chrome 关了；</li>
+<li>AI 的登录过期了。</li>
+</ul>
+<p>每一个都会变成一个求助电话。一个十个人的公司，没有 IT，没人接这个电话。</p>
+<h2 id="02-整套东西由哪几部分组成">02　整套东西由哪几部分组成</h2>
+<div class="wrap"><table>
+<thead>
+<tr>
+<th>名字</th>
+<th>是什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>carafe</strong>（醒酒壶）</td>
+<td>这个人的 AI 干活的地方，我们装好，我们照看。每人一个，有两种，见下面两行</td>
+</tr>
+<tr>
+<td><strong>容器版 carafe</strong></td>
+<td>一个容器，里面有 Claude Code、这个人的工作文件夹和公司的技能。给只在终端里干活的 AI</td>
+</tr>
+<tr>
+<td><strong>Mac 版 carafe</strong></td>
+<td>一台专用的 Mac mini，或者一台 macOS 虚拟机：自己跑 cellar door，开着真的 Chrome，桌面一直登录着。给要用浏览器、要带着本人登录状态干活的 AI</td>
+</tr>
+<tr>
+<td><strong>cellar door</strong>（酒窖门）</td>
+<td>每个 carafe 唯一的网页，藏在一条私密链接后面。本人在这里登录 Claude、打开手机访问、回答 Claude 的问题</td>
+</tr>
+<tr>
+<td><strong>Cellar</strong></td>
+<td>一家公司的控制面（Mac 少的几家可以共用一个）：一个单节点的 k3s 集群，里面跑着我们的 operator、Fleet 和苹果的设备管理（MDM），负责让这家公司的 Mac 一直处在能干活的状态</td>
+</tr>
+<tr>
+<td><code>carafe</code>、<code>cellarctl</code></td>
+<td>两个命令行工具：<code>carafe</code> 管容器版 carafe，<code>cellarctl</code> 管 Cellar 和它管着的 Mac。后者也能当 kubectl 插件用：<code>kubectl cellar</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>每人一个 carafe，两种里用一种：AI 要带着本人登录状态用浏览器的，用 Mac 版；只在终端里干活的，用容器版。</p>
+<p>整体是这样的：</p>
+<pre><code>  一家公司
+  +---------------- Cellar：一台小机器上的 k3s ----------------+
+  |  operator --&gt; Fleet（巡检、跑脚本）                        |
+  |           --&gt; NanoHUB（苹果 MDM：注册、描述文件、锁机抹机） |
+  +-----------------------------+------------------------------+
+                                |  Fleet 代理和 MDM
+                                |
+                      Mac 版 carafe（Mac mini 或虚拟机）   装了 Podman 的宿主 Mac
+                      cellar door、Chrome、                容器版 carafe
+                      这个人的 AI                          （每人一个 pod）
+                      （可选：一台 IP-KVM）
+
+  人：用手机或浏览器，经 claude.ai/code 和 cellar door 找到自己的 AI</code></pre>
+<p>目前容器版 carafe 跑在一台宿主 Mac 的 Podman 上，每人一个 pod，用的是 Cellar 里的 k3s 将来也能直接用的同一份 Kubernetes 清单。把它们搬进 Cellar，还在计划里。</p>
+<p>两条规矩从第一天就定了：</p>
+<ol type="1">
+<li><strong>每个人自己登录。</strong> Claude 的登录在本人自己的浏览器里完成，登录码直接进本人的 carafe。我们不留副本。</li>
+<li><strong>Claude 问的问题由本人回答。</strong> 「信任这个文件夹吗？」「打开远程控制吗？」原话显示在 cellar door 上，由本人点。没有任何东西替他回答。</li>
+</ol>
+<p>日常运维由我们来做：装盒子、配好每个人的 carafe、平时照看，就像承包商照看自己建的东西。公司的数据始终是公司自己的。</p>
+<h2 id="03-为什么用-mac-mini">03　为什么用 Mac mini</h2>
+<p>AI 也可以跑在容器或者云主机里。只在终端里干活的，容器版 carafe 就是这么做的；Anthropic 自己给的 computer use 参考环境，也是 Linux 加 Docker 加虚拟显示器。要用浏览器的活，我们给每个人一个 Mac 版 carafe：一台专用的 Mac mini，或者宿主 Mac 上的一台 macOS 虚拟机。用 Mac，理由有四条。</p>
+<p><strong>本人的浏览器，留在一个不关的桌面上。</strong> Claude Code 的 Chrome 集成直接用浏览器的登录状态，在一个看得见的 Chrome 窗口里操作。放在 Mac 版 carafe 上，这个浏览器配置和里面的登录就留在一台机器上，留在一个一直登录着的会话里。人机验证（CAPTCHA）、二次验证这类只能本人做的步骤，本人怎么看到这个桌面，我们还没选定方案。网站拦截自动化流量时会找无头浏览器（Cloudflare 的文档写了这一点），Mac 版 carafe 上跑的是真的、看得见的 Chrome。</p>
+<p><strong>人和人之间的隔离边界，看放在哪里。</strong> 两个 AI 跑在一台主机上，就要共用它的内核或虚拟化层。美国 NIST 的容器安全指南里写着：容器运行时的隔离程度不如虚拟机管理程序。同一台宿主上的容器版 carafe，共用宿主 Podman 虚拟机的内核；同一台宿主 Mac 上放在 macOS 虚拟机里的 Mac 版 carafe，共用它的虚拟化层；专用 Mac mini 上的 Mac 版 carafe，这两样都不跟别人的 AI 共用。Mac 版放在哪种上，我们按隔离和成本来定。机器本身，苹果芯片还有 Secure Enclave、安全启动、签名的系统卷和系统完整性保护。经 Apple Business 注册的 Mac 处于监管状态，用户自己删不掉管理。</p>
+<p><strong>苹果的管理链路。</strong> 成本和保留浏览器登录这两条，换成一台 Linux 小主机也成立。真正决定的是苹果这条管理链路：经 Apple Business，Mac 在开机设置时自己注册、进入监管状态、接收描述文件和系统更新声明、从 Cellar 接收锁机和抹机命令（锁机和抹机还没在真机上试过）。Linux 小主机的厂商没有这样一条链路，我们得用好几样工具自己拼。</p>
+<p><strong>适合放在架子上的硬件。</strong> Mac mini 长宽 5 英寸、高 2 英寸，空闲时 4 瓦、噪音 5 dBA。断电来电后能自己开机，也能被网络唤醒。</p>
+<p>它也有代价：</p>
+<ul>
+<li><strong>先付钱：</strong> 专用 Mac mini 上的 Mac 版 carafe，每个约 900 到 1,300 美元，按我们的假设每个办公室再加约 3,000 美元的网络，一次付清；加席位也没法几分钟就到位。</li>
+<li><strong>要有地方放：</strong> 要电、要网、要有人够得着这台 Mac。这就是办公室里的盒子，或者我们的数据中心。</li>
+<li><strong>要一直保持登录：</strong> 开了 FileVault 就不能自动登录，重启后停在密码页；系统更新的节奏也由苹果定（2026 年 2 月到 11 月，macOS 26 出了 15 个更新）。Cellar 的大部分工作就是为了这一条。</li>
+</ul>
+<p>钱的部分，按 36 个月算（美国标价，2026-11-24 读取；办公室 3,000 美元网络加设置、网费每月 100 美元、托管每台每月 100 美元，这三个数是我们的假设，不是报价）。表里的一个席位，就是专用 Mac mini 上的一个 Mac 版 carafe；放在 macOS 虚拟机里的 Mac 版，这里没算：</p>
+<div class="wrap"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>1 个席位</th>
+<th>10 个席位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows 365 商业版，4 核 16 GB</td>
+<td>$2,016</td>
+<td>$20,160</td>
+</tr>
+<tr>
+<td>AWS 4 核 16 GB，3 年合约</td>
+<td>$2,380–$2,975</td>
+<td>$23,800–$29,750</td>
+</tr>
+<tr>
+<td>Amazon WorkSpaces，常开</td>
+<td>$2,520–$2,808</td>
+<td>$25,200–$28,080</td>
+</tr>
+<tr>
+<td><strong>Mac mini 放在办公室</strong>（Mac、电费、网络和设置、网费）</td>
+<td><strong>$7,514–$7,762</strong></td>
+<td><strong>$15,740–$18,220</strong></td>
+</tr>
+<tr>
+<td><strong>Mac mini 托管在我们的数据中心</strong></td>
+<td><strong>$4,499</strong></td>
+<td><strong>$44,990</strong></td>
+</tr>
+<tr>
+<td>AWS 同配置，按需</td>
+<td>$5,586</td>
+<td>$55,860</td>
+</tr>
+<tr>
+<td>AWS 上租 Mac（M4），按需</td>
+<td>$32,324</td>
+<td>$323,240</td>
+</tr>
+</tbody>
+</table></div>
+<p>表里不含：Cellar 自己那台机器、KVM、AppleCare、UPS、托管所含远程人手以外的人工、办公室方案的上门，以及 Claude 的订阅和 Damaris Cellar 的许可费。表里假设 Mac 是公司自己买的，3 年后还是公司的；由我们提供的 Mac 另外报价。</p>
+<p>一台的话，两种放法都比签了合约的云桌面贵，托管比为一台机器专门拉一套网络便宜。两台起，放办公室就比托管便宜，因为网络只付一次。十台放办公室，每个席位每月约 44 到 51 美元，签了合约的云桌面或云主机是 56 到 83 美元。托管的话，不管几台，每个席位每月约 125 美元，比所有签合约的云方案都贵。</p>
+<h2 id="04-cellar-放在哪里">04　Cellar 放在哪里</h2>
+<div class="wrap"><table>
+<thead>
+<tr>
+<th>放法</th>
+<th>Cellar 在哪</th>
+<th>Mac 在哪</th>
+<th>适合谁</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>办公室</strong></td>
+<td>我们装进客户办公室的盒子里</td>
+<td>同一个办公室</td>
+<td>按上面的估算，两台 Mac 起比托管便宜</td>
+</tr>
+<tr>
+<td><strong>托管</strong></td>
+<td>我们的数据中心，由我们运行、由我们负责</td>
+<td>我们的数据中心</td>
+<td>只有一台 Mac，或者不想在办公室放盒子的公司</td>
+</tr>
+<tr>
+<td><strong>几家共用</strong></td>
+<td>我们数据中心里的一个托管 Cellar，每家一个命名空间，最多三家</td>
+<td>—</td>
+<td>只有几台 Mac 的客户</td>
+</tr>
+</tbody>
+</table></div>
+<p>几家共用时，各家共用的东西要说清楚：Secrets 的加密密钥、审计日志、节点的内核、cert-manager，以及集群管理员。不能共用这些的客户，就给它一个独立的 Cellar。</p>
+<h2 id="05-一个-mac-版-carafe怎样一直能干活">05　一个 Mac 版 carafe，怎样一直能干活</h2>
+<p>每个 Mac 版 carafe 在 Cellar 里是一条记录，写明这个人、这台 Mac 的序列号、它注册在哪个 Fleet。本人每天自己用的那台 Mac（自用 Mac），Cellar 也管着，但它不算 carafe。</p>
+<blockquote>
+<p>给技术读者：Mac 版 carafe 在 Cellar 里登记成一个 <code>MacStation</code>，<code>role: agent</code>（默认值）；自用 Mac 是 <code>role: desk</code>。<code>MacStation</code> 是代码里沿用的旧名字，例子里的 API group、名字都是示意。</p>
+</blockquote>
+<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">apiVersion</span><span class="kw">:</span><span class="at"> carafe.example.com/v1alpha1</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">kind</span><span class="kw">:</span><span class="at"> MacStation</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">metadata</span><span class="kw">:</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">name</span><span class="kw">:</span><span class="at"> station-01</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">namespace</span><span class="kw">:</span><span class="at"> fleet-a</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">spec</span><span class="kw">:</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">serverRef</span><span class="kw">:</span><span class="at"> fleet</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">person</span><span class="kw">:</span><span class="at"> ana</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">serial</span><span class="kw">:</span><span class="at"> C02ABCDEF123</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">remedyBackoff</span><span class="kw">:</span><span class="at"> </span><span class="dv">120</span><span class="co">        # 同一项检查两次修复之间至少隔多少秒</span></span></code></pre></div>
+<p>检查项是一家公司的 Mac 版 carafe 共用的（自用 Mac 只跑标明给它的那几项），写在 <code>FleetConfig</code> 里。一项检查是一条 osquery 查询，修复是一段 shell 脚本，都写在配置里。比如「cellar door 有没有应答」，失败了就重启它；「Claude 有没有登录」，故意不配修复，重新登录是本人的事。</p>
+<p>结果用 kubectl 就能看到（示意，名字是编的，省略了几列）：</p>
+<pre><code>$ kubectl -n fleet-a get macstations -w
+NAME         PERSON   ONLINE   AWAKE   CELLAR-DOOR   CHROME   SIGNED-IN   STATUS
+station-01   ana      true     true    true          true     true        ok
+station-01   ana      true     true    false         true     true        attention
+station-01   ana      true     true    true          true     true        ok</code></pre>
+<p>实验室里那一次：cellar door 被停掉后 51 秒检查变红，142 秒修好变绿。实验室设成每分钟检查一次，Fleet 默认是一小时一次。</p>
+<p>修复只在四个条件同时成立时才跑：这项检查配了修复脚本；检查正在失败；Fleet 看到这台 Mac 在线；离这项检查上次修复已经过了退避时间。Mac 离线时不会攒着命令等它回来。没配脚本的检查就一直红着，写明该由人做什么。</p>
+<p>有些故障根本不在系统里。开了 FileVault 的 Mac 重启后，macOS 还没启动就停在解锁界面，Fleet 联系不上它。Mac 可以配一台 IP-KVM：operator 通过 KVM 看屏幕，用文字识别认出 macOS 在要密码，就把这台 Mac 账户的密码打进去，每次故障最多试三次。打之前先核对 KVM 的证书；密码是公司命名空间里的一个 Secret；因为靠文字识别，macOS 必须是英文界面。Fleet 报告设置助理开着的时候，operator 不碰 KVM。但抹机或者开机设置时，Fleet 看到的是离线，一个要密码的设置页可能被当成解锁提示，所以抹机或设置之前，要先把这台 Mac 的 KVM 摘掉。</p>
+<p>管理 Mac 的部分：</p>
+<ul>
+<li><strong>新 Mac 或抹掉过的 Mac：</strong> 有人先在 Apple Business 里把它分配好、为一次注册放行，它就会在开机设置时注册。真机上试过一次，是从抹机开始的，用的是旧版的放行步骤；现在的放行步骤还没在真机上跑过。</li>
+<li><strong>描述文件和系统更新：</strong> 描述文件按配置装上去，从配置里删掉的还不会自动卸；系统更新写成一份声明：目标 macOS 版本和日期。</li>
+<li><strong>锁机和抹机，operator 自己从来不做。</strong> <code>kubectl cellar -n fleet-a mdm lock station-01</code> 和 <code>mdm erase station-01</code> 只能在终端里跑，跑之前要手打这台 Mac 在 Cellar 里的名字（锁机）或 Mac 的序列号（抹机）。命令先写一条记录（含锁机 PIN），再停掉 KVM 对这台 Mac 的输入，最后才把命令排进队列。终端检查挡得住脚本，挡不住一个拿着管理员凭据、自己会操作终端的 AI；给 AI 用的、不能锁机抹机的身份还没做。</li>
+</ul>
+<h2 id="06-容器版-carafe">06　容器版 carafe</h2>
+<p>这一节说的都是容器版。一条命令建好一个人的容器版 carafe，打印出他的 cellar door 链接：</p>
+<pre><code>$ carafe pour ana --port PORT --remote drive:Work --rclone-conf ana.conf
+$ carafe sync-init ana        # 第一次同步，由管理员启动
+$ carafe status ana</code></pre>
+<p>每个容器版 carafe 是一个 pod，有自己的网络。长期运行的容器（AI 干活的容器，以及配了网盘时的同步容器）都限了内存和 CPU，丢掉了所有 Linux capability（内核能力）；启动前那个短暂的准备步骤没有这些声明。Claude Code 的版本钉死在镜像里，关掉了自动更新，回滚就是换回上一个镜像。</p>
+<ul>
+<li><strong>工作文件夹里的一个目录</strong>，设计成跟本人自己的 Google Drive 或 OneDrive 双向同步，两次之间隔五分钟。冲突时两份都留；发现网盘那边的目录被清空或被换掉，就什么都不改。目前只在两个本地文件夹之间测过，还没接真的网盘。</li>
+<li><strong>网络：</strong> 装上宿主机的出网规则后，测试里 carafe 能上互联网，访问不到宿主 Mac 自己的服务、办公室里的另一台机器、另一个 carafe 和云的元数据地址。</li>
+<li><strong>日常巡检：</strong> <code>carafe check</code> 报告告警和警告（VM 停了、磁盘快满、登录过期或超过 25 天、手机访问关了、同步停了），或者报告一切正常；告警可以交给一个命令，比如发到聊天群。</li>
+<li><strong>离职：</strong> <code>drain</code> 最后同步一次再停；<code>retire</code> 归档数据卷，逐个读回检查，有一个读不出来或者主目录的归档是空的，就什么都不删。</li>
+<li><strong>紧急进入：</strong> <code>carafe breakglass</code> 要管理员先写理由，才打开 shell，理由写进本地日志，工具会尽量把日志标成只能追加。配了通知命令的，会通知本人；通知失败就不开 shell。没配的，只给管理员一个警告。Podman 本身不管这些，所以它防的是失手，防不住存心绕过的管理员。</li>
+</ul>
+<h2 id="07-托管和信任">07　托管和信任</h2>
+<p>Fleet 的 API 令牌能在每台注册过的 Mac 上以 root 跑脚本。所以 operator 的手伸得很短：它只盯自己的命名空间，只拿一个命名空间内的 Role，不拿 ClusterRole；NetworkPolicy 只让同命名空间的 pod 连 Fleet 和数据库，只让 operator 连 NanoHUB 的 API；每家公司有自己的命名空间、operator、Fleet、数据库、CA 和端口。这些 NetworkPolicy 在单节点集群上成立，每个 Cellar 都是单节点。</p>
+<p>Secrets 和带锁机 PIN 的记录，静态时用一把 AES 密钥加密。这能保护「没拿到密钥的人拿到一份数据库拷贝」这种情况；防不住节点上的 root（密钥就在旁边），也防不住有权限通过 API 读这些对象的人。NanoHUB 的数据卷里，排队的命令（含 PIN）还是明文文件；数据库的旧版本和早先的快照里也可能还有明文。</p>
+<p>整个 Cellar 可以扔掉重建：<code>cellarctl backup</code> 把状态写进一个用 age 加密的文件，恢复时先起数据库、不起 Fleet，导入数据、核对行数之后才让 Mac 连上来，所以 Mac 不用重新注册，也不用有人跑到 Mac 跟前。恢复出来的 MDM 服务器默认暂停自动注册，免得一份公司 Cellar 的拷贝把这家公司的新 Mac 认走。</p>
+<h2 id="08-实测">08　实测</h2>
+<p>每个数字都是一次运行、一台 Mac 的结果。</p>
+<div class="wrap"><table>
+<thead>
+<tr>
+<th>日期</th>
+<th>环境</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-10-27</td>
+<td>一台办公室 Mac mini，Podman</td>
+<td>为测试身份建了容器版 carafe；它访问不到宿主 Mac 的服务、办公室的另一台机器和云元数据，能访问 Anthropic、GitHub 和公司工具</td>
+</tr>
+<tr>
+<td>2026-10-27</td>
+<td>一台 macOS 虚拟机当 Mac 版 carafe</td>
+<td>从 claude.ai/code 发起的会话驱动了这台 Mac 上的 Chrome；重启后约 <strong>2 分钟</strong>，cellar door、手机访问和 Chrome 全部自己回来</td>
+</tr>
+<tr>
+<td>2026-10-28</td>
+<td>kind，一台 macOS 虚拟机</td>
+<td>从空命名空间到 Fleet 就绪 <strong>71 秒</strong>；改配置 <strong>不到 1 秒</strong>生效；在 Fleet 里手改的脚本 <strong>287 秒</strong>后被改回</td>
+</tr>
+<tr>
+<td>2026-10-28</td>
+<td>kind，一台 macOS 虚拟机</td>
+<td>cellar door 停掉后 <strong>51 秒</strong>检查失败，<strong>142 秒</strong>修好</td>
+</tr>
+<tr>
+<td>2026-10-28</td>
+<td>kind，两家公司</td>
+<td>两家之间 8 项隔离检查，包括 API 令牌、注册密钥、CA、pod 网络、服务账号，双向都试</td>
+</tr>
+<tr>
+<td>2026-11-08</td>
+<td>kind，一台实体测试 Mac</td>
+<td>只有 Fleet：备份、删集群、建新集群、恢复用了 <strong>29 秒</strong>；Mac 保持原来的身份和注册</td>
+</tr>
+<tr>
+<td>2026-11-21</td>
+<td>k3s，两个测试租户</td>
+<td>共用 Cellar：权限、Pod 安全、NetworkPolicy、各自的 TLS，删一家不影响另一家</td>
+</tr>
+<tr>
+<td>2026-11-23</td>
+<td>k3s，共用 Cellar</td>
+<td>打开静态加密约 <strong>7 秒</strong>，没有 pod 重启，Fleet 一直就绪</td>
+</tr>
+<tr>
+<td>2026-11-24</td>
+<td>k3s，一台 Mac mini</td>
+<td>从抹机开始自动注册（macOS 26.3）：开机设置时注册并进入监管，建好公司管理员账户，预填好本人账户</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="09-还没做到的">09　还没做到的</h2>
+<ul>
+<li>还没试：网盘同步接真的 Google Drive 或 OneDrive；真手机上的 Claude App（用浏览器代替过）；宿主 Mac 整机重启；专用 Mac mini 上的 Mac 版 carafe；当前版本的 KVM 解锁全流程；真机上的锁机和抹机；设备上的系统更新声明；推送证书续期；macOS 27 上的注册；共用 Cellar 里单家客户的备份；跑在盒子硬件上或数据中心里的 Cellar（实验室里都是虚拟机）。</li>
+<li>还没做：cellar door 前面的 HTTPS 和公司登录（现在是走明文 HTTP 的私密链接）；把容器版 carafe 搬进 Cellar 的 k3s；定时备份并存到 Cellar 以外；系统更新后自动走完设置助理；FileVault 密钥托管；多节点的 Cellar；一个不能锁机抹机的 AI 专用身份。</li>
+<li>还没有客户在生产环境里用。</li>
+</ul>
+<h2 id="10-更多了解">10　更多了解</h2>
+<p>Damaris Cellar 不是开源软件。它用 PolyForm 非商业许可（PolyForm Noncommercial 1.0.0），非商业用途可以用；任何组织用它为自己的员工或客户服务，都需要程诚签发的商业许可。代码仓库目前不公开。</p>
+<p>如果你的公司想让 AI 一直干活，可以找我们谈试点。如果你给客户部署 AI，或者自己跑 Kubernetes、也想要这样的 Mac 版 carafe，可以来谈代码访问和评估许可。来信请写上：多少人、多少台 Mac、什么 macOS 版本、Kubernetes 跑在哪里、要不要苹果自动注册。地址：<a href="mailto:ccheng@ccheng.us">ccheng@ccheng.us</a></p>
+<blockquote>
+<p>Fleet 是 Fleet Device Management Inc. 的商标；Apple、Mac、macOS、FileVault 是 Apple Inc. 的商标；Claude 是 Anthropic 的商标；文中提到的其他产品名称归各自所有者。Damaris Cellar 与它们都没有隶属关系。</p>
+</blockquote>
+
+</main>
+<footer class="site"><hr><p>Damaris X</p></footer>
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>找缝、补缝、守缝：小公司用 AI 的一套施工方法</title>
+<meta name="description" content="小公司用 AI 的一套施工方法：找到信息断开的地方，补上，再一直守着。">
+<style>
+/* Plain style, as on the home page: one serif column, default links, rules instead of boxes. */
+:root {
+  --bg: #FFFFFF; --fg: #000000; --muted: #444444; --rule: #888888;
+  --link: #0000EE; --visited: #551A8B;
+  --serif: Georgia, "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "Times New Roman", serif;
+  --mono: Menlo, Consolas, "DejaVu Sans Mono", "Courier New", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111111; --fg: #E6E6E6; --muted: #AAAAAA; --rule: #666666;
+    --link: #8AB4F8; --visited: #C58AF9; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111111; --fg: #E6E6E6; --muted: #AAAAAA; --rule: #666666;
+  --link: #8AB4F8; --visited: #C58AF9; color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 17px/1.75 var(--serif); }
+header.site, main, footer.site {
+  max-width: 40em; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+header.site { padding-top: 12px; }
+header.site p { margin: 0 0 4px; }
+footer.site { padding-bottom: 32px; color: var(--muted); font-size: 0.9em; }
+a:link { color: var(--link); }
+a:visited { color: var(--visited); }
+h1 { font-size: 1.7em; line-height: 1.35; margin: 0.6em 0 0.3em; }
+h2 { font-size: 1.25em; line-height: 1.4; margin: 1.8em 0 0.5em; }
+p, ul, ol { margin: 0 0 0.9em; }
+ul, ol { padding-left: 1.6em; }
+li { margin: 0 0 0.35em; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 1.5em 0; }
+.date { color: var(--muted); font-size: 0.9em; margin: 0 0 1.2em; }
+code, pre { font-family: var(--mono); font-size: 0.86em; }
+pre { margin: 0 0 0.9em; overflow-x: auto; font-size: 13px; line-height: 1.45; white-space: pre; }
+.wrap { overflow-x: auto; margin: 0 0 0.9em; }
+table { border-collapse: collapse; font-size: 0.9em; }
+th, td { border: 1px solid var(--rule); padding: 4px 8px; text-align: left; vertical-align: top; }
+blockquote { margin: 0 0 0.9em; padding-left: 1em; border-left: 1px solid var(--rule); color: var(--muted); font-size: 0.9em; }
+</style>
+</head>
+<body>
+<header class="site"><p><a href="../">博客</a></p><hr></header>
+<main>
+<h1>找缝、补缝、守缝：小公司用 AI 的一套施工方法</h1>
+<p class="date">2026-11-27</p>
+<p>每家公司里都有人在当「人肉中间件」：客户来了一封邮件，有人把它重新敲进销售系统；合同签完了，有人去表格里改状态；银行流水到了，有人一行一行对账；供应商的发票迟迟不来，有人去追。</p>
+<p>信息已经到了，下一步却不会自己发生，非要有人去抄一遍、读一遍、对一遍、追一下或者转一下。我们把这样的地方叫做一条<strong>缝</strong>。</p>
+<p>这篇文章讲的是我们正在整理、准备试点的一套方法：怎么找到这些缝，用 AI 把它们补上，再一直守着它们不再裂开。它的分工借用了工程总包（EPC）的做法：有签字的工程师，有施工队，有运维。先说清楚：方法里的大部分还是提议；生产环境里的准确率和省下的时间，我们在自己的公司里也还没量过。</p>
+<h2 id="01-缝为什么一直没人补">01　缝为什么一直没人补</h2>
+<p>缝不是新问题。系统集成和屏幕自动化（RPA）补不到的，是一条长长的尾巴，原因有三条：</p>
+<ul>
+<li><strong>对面没有接口。</strong> 进来的是邮件、扫描件、短信、电话记录。</li>
+<li><strong>中间要人判断。</strong> 这算不算投诉？这张发票是不是我们的？漏水急不急？</li>
+<li><strong>量太小。</strong> 一周几十件，单独立一个集成项目不划算。</li>
+</ul>
+<p>大模型擅长读乱七八糟的输入、做一个小判断。但它需要有人告诉它：缝在哪里，什么叫做对，哪一步必须停下来等人。这个人不一定是工程师，但要懂这门生意。</p>
+<p>所以我们卖的是<strong>有人维护的结果</strong>，不是一个 AI。有时候最好的补法，是改一张表单、接一个现成的连接器，或者干脆删掉一步。</p>
+<h2 id="02-缝分六类">02　缝分六类</h2>
+<p>真实的流程往往几类混在一起。分类是为了帮人问出更好的问题，不是为了套框子。</p>
+<div class="wrap"><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>勘察时问什么</th>
+<th>怎么补</th>
+<th>典型的失败</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>搬运</strong></td>
+<td>同一件事你在哪儿又录了一遍？</td>
+<td>字段映射；只开一个窄口子写入；写完读回</td>
+<td>值对了，客户错了；重复提交</td>
+</tr>
+<tr>
+<td><strong>翻译</strong></td>
+<td>有什么东西得你先读一遍，系统才能用？</td>
+<td>抽成固定格式；附上原文证据；不知道的留空</td>
+<td>编出来的金额；把开票日期当成截止日</td>
+</tr>
+<tr>
+<td><strong>对账</strong></td>
+<td>哪些记录你要先比对才敢信？</td>
+<td>按标识匹配；算出差异；拿不准的交给人</td>
+<td>配错对；把押金抵扣当成现金</td>
+</tr>
+<tr>
+<td><strong>催办</strong></td>
+<td>没人再查一遍的话会出什么错？</td>
+<td>跟踪截止日；升级给有人负责的队列</td>
+<td>静默：提醒没响，或者响了没人收</td>
+</tr>
+<tr>
+<td><strong>分派</strong></td>
+<td>这件事该给谁，谁能看？</td>
+<td>把归属和去向规则写进运行配置</td>
+<td>私事发到了公开群里</td>
+</tr>
+<tr>
+<td><strong>拼装</strong></td>
+<td>你要从几份记录里整理出什么？</td>
+<td>用定好的模板；检查完整性和算术；先预览</td>
+<td>数据过期了，报告却很像样</td>
+</tr>
+</tbody>
+</table></div>
+<p>还有一条要分清：「批准这个价格」是<strong>授权</strong>，「发现价格变了，把差异暂存起来等人看」是<strong>任务</strong>。把这两样分开，这套方法才教得会。</p>
+<h2 id="03-一条缝从头到尾客户邮件变成销售卡片">03　一条缝从头到尾：客户邮件变成销售卡片</h2>
+<p>拿一条我们自己补过的缝，看十步流程放上去是什么样：客户发到公司邮箱的邮件，要变成销售管道里的一张卡片，或者更新已有的卡片。这条缝已经补上了。第 3、4 步在这条缝上做过；第 5、7、9 步我们已有工具；其余几步是提议。</p>
+<div class="wrap"><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>产出</th>
+<th>放到这条缝上是什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 勘察</td>
+<td>缝的清单，附现在的耗时</td>
+<td>跟一封邮件从进门走到卡片更新，再跟一个例外和一个半途放弃的案子；标出每一次重敲、阅读、核对、等待</td>
+</tr>
+<tr>
+<td>2. 报价</td>
+<td>一页「缝合同」，固定价格</td>
+<td>写清：进来的是哪个邮箱的邮件；要出的是卡片上的哪几个字段；匹配不确定时只报告、不写入；谁验收</td>
+</tr>
+<tr>
+<td>3. 抽规则</td>
+<td>决策表；谁能做什么</td>
+<td>能对上客户的才更新；对不上、又像新询价的，变成线索申请；只改限定的字段，不挪卡</td>
+</tr>
+<tr>
+<td>4. 搭建</td>
+<td>有版本号的技能</td>
+<td>用我们的技能模板，带 <code>doctor</code> 和固定的失败分支</td>
+</tr>
+<tr>
+<td>5. 测试</td>
+<td>评审意见，逐条复核</td>
+<td>让另一家厂商的模型来审；每条意见按复算命令核实</td>
+</tr>
+<tr>
+<td>6. 回测</td>
+<td>在真实历史上的得分</td>
+<td>拿过去几个月的真实邮件重跑，看它当时会怎么做</td>
+</tr>
+<tr>
+<td>7. 优化</td>
+<td>更好的版本，或者维持原样</td>
+<td>一次只改一处；评委不知道哪份是新版，比较新旧；变差就退回</td>
+</tr>
+<tr>
+<td>8. 陪跑</td>
+<td>AI 的建议和真人实际做法并排</td>
+<td>AI 只提建议，销售照常干活，比较两边</td>
+</tr>
+<tr>
+<td>9. 交接</td>
+<td>签字的验收清单；回滚测过</td>
+<td>装到每个人的 AI 里，演示，客户方负责人签字</td>
+</tr>
+<tr>
+<td>10. 维护</td>
+<td>服务日志；每月重测</td>
+<td>每天有看守检查它跑没跑；邮件格式一变就重测</td>
+</tr>
+</tbody>
+</table></div>
+<p>这条缝在早期版本里漏掉过附件里的事实。所以我们认为第 6 步和第 10 步最要紧。</p>
+<p>每条缝都要守两条规矩（第一条我们的技能已经这样做；第二条是提议的标准，现有技能还没全做到）：</p>
+<ol type="1">
+<li><strong>AI 准备，人拍板。</strong> 凡是涉及钱、合同、法律通知或者拒绝对方的，发出公司之前都要人批。日常消息可以在负责人书面同意的范围内自动发。每份缝合同都写明哪些动作属于哪一类、人没及时回应时怎么办。</li>
+<li><strong>每条缝都有看守。</strong> 跑完没事可以不出声，但跑的记录不见了、或者太久没更新，就要报警。同一台机器上的看守可能一起挂，所以还要一个外部的心跳。</li>
+</ol>
+<h2 id="04-最缺的一步回测">04　最缺的一步：回测</h2>
+<p>回测不是把旧邮件塞进新提示词里跑一遍。我们提议的做法是：</p>
+<ol type="1">
+<li><strong>收集三到十二个月的真实案例</strong>，包括乱的：被忽略的消息、重复、更正、争议、失败。</li>
+<li><strong>还原当时知道什么</strong>，把后来才发生的事遮住：后来的回复、签字、付款。还原不了的案例，只能测抽取，测不了决定。</li>
+<li><strong>每个案例记两个答案：</strong> 人当时怎么做的，和其实应该怎么做。人也会漏，所以 AI 跟人不一样，不自动算 AI 错。</li>
+<li><strong>重跑不能碰到真实世界。</strong> 所有写入都进记录器，生产凭据和对外消息都屏蔽掉。</li>
+<li><strong>留一批案例到最后考试才用</strong>，而且要按客户或线程切开，别让几乎一样的邮件同时出现在练习和考试里。</li>
+<li><strong>及格线按后果定：</strong> 发错人、越权承诺、记错账，一次都不行；低风险的内部动作，大约 98% 的动作要对、95% 该做的动作要找到，而且扣掉人审核的时间后还要净省时间。</li>
+</ol>
+<p>分数一定要写明基于多少个案例。如果案例彼此独立，100 个案例零错误，按 95% 的把握，错误率的上限大约还有 3%；300 个案例大约 1%。案例彼此相关时，这个结论要打折扣。</p>
+<p>我们了解的一个报修产品，第一次拿历史案例测检索，没有调用模型，就发现它的分派规则几乎没被检索到。这比上面说的完整回测窄，但它说明，第一次拿历史来测就会有意外。</p>
+<p>回测工具我们还没有，它是第一个要做的工具，也会是学员用得最多的工具。</p>
+<h2 id="05-谁来做ai-技师">05　谁来做：AI 技师</h2>
+<p>我们不想让工程师来补每一条缝，那样对十个人的公司太贵。我们想培养的是<strong>懂业务、不写代码的 AI 技师</strong>，工程师负责做工具、做连接器、每次上线前签字。</p>
+<div class="wrap"><table>
+<thead>
+<tr>
+<th>角色</th>
+<th>做什么</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>学员</td>
+<td>在编出来的案例上练习</td>
+<td>—</td>
+</tr>
+<tr>
+<td>技师</td>
+<td>在指导下搭建和测试缝</td>
+<td>安装工</td>
+</tr>
+<tr>
+<td>高级技师</td>
+<td>勘察、报价、维护、带人</td>
+<td>工长</td>
+</tr>
+<tr>
+<td>工程师</td>
+<td>做工具和连接器，签发上线</td>
+<td>签章工程师</td>
+</tr>
+<tr>
+<td>客户方负责人</td>
+<td>定规矩、定钱、做业务验收</td>
+<td>业主；我们的认证永远不授予这个角色</td>
+</tr>
+</tbody>
+</table></div>
+<p>招谁：大学和社区大学里学会计、商科、房地产、医疗管理、物流的学生，也招有经验的办公室协调员。面试就给一包乱糟糟的案例材料，看他能不能理清交接、找出矛盾、说出缺了什么证据、说出哪个决定该归负责人。没有依据的自信会扣分。</p>
+<p>教什么（提议）：约 60 小时通用方法，各行业都一样；约 20 小时行业包；然后在一块「做错也不算数」的练习板上实操。最接近的外部参照是 Salesforce 管理员：不是工程师，但负责配置业务自动化，按实际任务考核。</p>
+<h2 id="06-信任">06　信任</h2>
+<ul>
+<li><strong>数据权限分步放开：</strong> 先用编出来的数据，再用去掉身份信息的数据，最后才按具体的人开放部分真实记录。</li>
+<li><strong>邮件和文件都当作不可信的输入。</strong> 里面可能藏着诱导 AI 的指令，所以 AI 只拿最小的权限，高风险动作由人批准。</li>
+<li><strong>规矩要落到权限上，不能只写在提示词里。</strong> 一个技能写着「不许批准价格」，可它用的令牌其实能批，这条规矩就还没真正生效。</li>
+<li><strong>永远由人做：</strong> 付款和改银行信息、批准价格、发出或签署合同、法律申报、对人的资格审核和强制执行、破坏性的改动、扩大权限。</li>
+<li><strong>我们的运维人员在技术上能看到客户的工作区。</strong> 限制这一点的设计还没实现，客户必须事先知道；学员接触真实数据之前，每项访问控制都要核实。</li>
+<li><strong>执照、保险和责任：</strong> 服务我们自己的公司以外的客户之前，要先请律师看。</li>
+</ul>
+<h2 id="07-我们已经看到的和还没证明的">07　我们已经看到的，和还没证明的</h2>
+<p>我们自己运营着两家不同行业的公司。两家里已经有十几条缝用 AI 技能补上了：客户邮件变销售卡片、政府来信变带截止日的任务、合同签完自动结单、收据照片变预填好的报销表单、停住的工单和没到账的款项、现金流记账。</p>
+<p>它们说明了：两个不相干的行业里，缝的种类是一样的，而且已经能补上其中一部分。</p>
+<p>它们<strong>没有</strong>说明：</p>
+<ul>
+<li>生产环境里的准确率和省下的时间，这些都还没量过；</li>
+<li>新人能不能照这套方法交付；</li>
+<li>一个行业的技能包，换到同行业的第二家公司还能不能用；</li>
+<li>我们自己的公司太好说话：领导是同一批人，技能是现成的，出了事创始人会救场，这些都把真实的销售、开权限和推广成本藏起来了。</li>
+</ul>
+<h2 id="08-下一步提议一个-12-周的试点">08　下一步提议：一个 12 周的试点</h2>
+<p>在我们这两家公司里做一次，12 周，2 到 3 个学员，一共 6 条缝：两条翻译、两条对账或催办、一条分派、一条拼装。事先挑好一对相似的缝，第一次和第二次安装的小时数分开记。</p>
+<p>及格标准（提议）：</p>
+<ul>
+<li>6 条缝里至少 4 条通过验收，其余的写明理由后推迟；</li>
+<li>没有越权动作，没有泄露；</li>
+<li>通过验收的缝，处理时间的中位数至少降 30%，审核和改正的时间也算在内；</li>
+<li>至少两名学员能独立完成勘察、回测和交付。</li>
+</ul>
+<p>决定这门生意成不成的，只有一个数字：<strong>每一条验收通过、持续在维护的缝，要花多少小时的工程和监督。</strong> 如果重复安装时这个数降不下来，这就是定制咨询，不是承包生意。6 条缝全部要报结果，推迟的也要报，这样砍掉难的也美化不了结果。</p>
+<h2 id="09-更多了解">09　更多了解</h2>
+<p>如果你的公司里也有很多人在当人肉中间件，想找人一起把缝找出来、补上、守住；或者你在学校里学商科、会计、房地产，对当 AI 技师有兴趣，写信给 <a href="mailto:ccheng@ccheng.us">ccheng@ccheng.us</a></p>
+<p>这套方法会随着试点一起修改。</p>
+
+</main>
+<footer class="site"><hr><p>Damaris X</p></footer>
+</body>
+</html>
