@@ -93,7 +93,7 @@ blockquote { margin: 0 0 0.9em; padding-left: 1em; border-left: 1px solid var(--
 </tr>
 <tr>
 <td><strong>cellar door</strong>（酒窖门）</td>
-<td>每个 carafe 唯一的网页，藏在一条私密链接后面。本人在这里登录 Claude、打开手机访问、回答 Claude 的问题</td>
+<td>每个 carafe 唯一的网页，藏在一条私密链接后面（目前走明文 HTTP，前面还没有 HTTPS 和公司登录）。本人在这里登录 Claude、打开手机访问、回答 Claude 的问题</td>
 </tr>
 <tr>
 <td><strong>Cellar</strong></td>
@@ -268,71 +268,7 @@ $ carafe status ana</code></pre>
 <p>Fleet 的 API 令牌能在每台注册过的 Mac 上以 root 跑脚本。所以 operator 的手伸得很短：它只盯自己的命名空间，只拿一个命名空间内的 Role，不拿 ClusterRole；NetworkPolicy 只让同命名空间的 pod 连 Fleet 和数据库，只让 operator 连 NanoHUB 的 API；每家公司有自己的命名空间、operator、Fleet、数据库、CA 和端口。这些 NetworkPolicy 在单节点集群上成立，每个 Cellar 都是单节点。</p>
 <p>Secrets 和带锁机 PIN 的记录，静态时用一把 AES 密钥加密。这能保护「没拿到密钥的人拿到一份数据库拷贝」这种情况；防不住节点上的 root（密钥就在旁边），也防不住有权限通过 API 读这些对象的人。NanoHUB 的数据卷里，排队的命令（含 PIN）还是明文文件；数据库的旧版本和早先的快照里也可能还有明文。</p>
 <p>整个 Cellar 可以扔掉重建：<code>cellarctl backup</code> 把状态写进一个用 age 加密的文件，恢复时先起数据库、不起 Fleet，导入数据、核对行数之后才让 Mac 连上来，所以 Mac 不用重新注册，也不用有人跑到 Mac 跟前。恢复出来的 MDM 服务器默认暂停自动注册，免得一份公司 Cellar 的拷贝把这家公司的新 Mac 认走。</p>
-<h2 id="08-实测">08　实测</h2>
-<p>每个数字都是一次运行、一台 Mac 的结果。</p>
-<div class="wrap"><table>
-<thead>
-<tr>
-<th>日期</th>
-<th>环境</th>
-<th>结果</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>2026-10-27</td>
-<td>一台办公室 Mac mini，Podman</td>
-<td>为测试身份建了容器版 carafe；它访问不到宿主 Mac 的服务、办公室的另一台机器和云元数据，能访问 Anthropic、GitHub 和公司工具</td>
-</tr>
-<tr>
-<td>2026-10-27</td>
-<td>一台 macOS 虚拟机当 Mac 版 carafe</td>
-<td>从 claude.ai/code 发起的会话驱动了这台 Mac 上的 Chrome；重启后约 <strong>2 分钟</strong>，cellar door、手机访问和 Chrome 全部自己回来</td>
-</tr>
-<tr>
-<td>2026-10-28</td>
-<td>kind，一台 macOS 虚拟机</td>
-<td>从空命名空间到 Fleet 就绪 <strong>71 秒</strong>；改配置 <strong>不到 1 秒</strong>生效；在 Fleet 里手改的脚本 <strong>287 秒</strong>后被改回</td>
-</tr>
-<tr>
-<td>2026-10-28</td>
-<td>kind，一台 macOS 虚拟机</td>
-<td>cellar door 停掉后 <strong>51 秒</strong>检查失败，<strong>142 秒</strong>修好</td>
-</tr>
-<tr>
-<td>2026-10-28</td>
-<td>kind，两家公司</td>
-<td>两家之间 8 项隔离检查，包括 API 令牌、注册密钥、CA、pod 网络、服务账号，双向都试</td>
-</tr>
-<tr>
-<td>2026-11-08</td>
-<td>kind，一台实体测试 Mac</td>
-<td>只有 Fleet：备份、删集群、建新集群、恢复用了 <strong>29 秒</strong>；Mac 保持原来的身份和注册</td>
-</tr>
-<tr>
-<td>2026-11-21</td>
-<td>k3s，两个测试租户</td>
-<td>共用 Cellar：权限、Pod 安全、NetworkPolicy、各自的 TLS，删一家不影响另一家</td>
-</tr>
-<tr>
-<td>2026-11-23</td>
-<td>k3s，共用 Cellar</td>
-<td>打开静态加密约 <strong>7 秒</strong>，没有 pod 重启，Fleet 一直就绪</td>
-</tr>
-<tr>
-<td>2026-11-24</td>
-<td>k3s，一台 Mac mini</td>
-<td>从抹机开始自动注册（macOS 26.3）：开机设置时注册并进入监管，建好公司管理员账户，预填好本人账户</td>
-</tr>
-</tbody>
-</table></div>
-<h2 id="09-还没做到的">09　还没做到的</h2>
-<ul>
-<li>还没试：网盘同步接真的 Google Drive 或 OneDrive；真手机上的 Claude App（用浏览器代替过）；宿主 Mac 整机重启；专用 Mac mini 上的 Mac 版 carafe；当前版本的 KVM 解锁全流程；真机上的锁机和抹机；设备上的系统更新声明；推送证书续期；macOS 27 上的注册；共用 Cellar 里单家客户的备份；跑在盒子硬件上或数据中心里的 Cellar（实验室里都是虚拟机）。</li>
-<li>还没做：cellar door 前面的 HTTPS 和公司登录（现在是走明文 HTTP 的私密链接）；把容器版 carafe 搬进 Cellar 的 k3s；定时备份并存到 Cellar 以外；系统更新后自动走完设置助理；FileVault 密钥托管；多节点的 Cellar；一个不能锁机抹机的 AI 专用身份。</li>
-<li>还没有客户在生产环境里用。</li>
-</ul>
-<h2 id="10-更多了解">10　更多了解</h2>
+<h2 id="08-更多了解">08　更多了解</h2>
 <p>Damaris Cellar 不是开源软件。它用 PolyForm 非商业许可（PolyForm Noncommercial 1.0.0），非商业用途可以用；任何组织用它为自己的员工或客户服务，都需要程诚签发的商业许可。代码仓库目前不公开。</p>
 <p>如果你的公司想让 AI 一直干活，可以找我们谈试点。如果你给客户部署 AI，或者自己跑 Kubernetes、也想要这样的 Mac 版 carafe，可以来谈代码访问和评估许可。来信请写上：多少人、多少台 Mac、什么 macOS 版本、Kubernetes 跑在哪里、要不要苹果自动注册。地址：<a href="mailto:ccheng@ccheng.us">ccheng@ccheng.us</a></p>
 <blockquote>
