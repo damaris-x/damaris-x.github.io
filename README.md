@@ -16,7 +16,8 @@ investors: carafe, skilldecant, the Fleet operator and the carafe box, and how a
 
 This repository holds the pages and their figures only, no product source. Everything here is public: no
 client names, people, machines or private repository links. The internal notes, with the sources for every claim,
-are in the carafe repository under `docs/marketing/` and `docs/research/`.
+are in the Damaris Cellar source repository (`cellar`, called `carafe` until 2026-11-28) under `docs/marketing/`
+and `docs/research/`.
 
 No build step: edit the HTML and open a pull request (the organization requires one for `main`). Merging it
 republishes the site within a minute or two.
